@@ -14,6 +14,8 @@ Use managed AWS services with clear boundaries:
 
 https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html
 
+> Clean up: https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html#http-api-dynamo-db-cleanup
+
 ## Deploy: React UI to Amplify
 
 https://docs.aws.amazon.com/amplify/latest/userguide/getting-started-next.html
