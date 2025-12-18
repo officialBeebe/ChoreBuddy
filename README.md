@@ -1,4 +1,4 @@
-# chores
+# chore-app
 
 Household chore timers app that doubles as an AWS SAA-aligned reference architecture.
 
