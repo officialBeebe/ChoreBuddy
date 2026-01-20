@@ -1,5 +1,3 @@
-> TODO: Add `POST /login`, issue JWT, configure API Gateway JWT authorizer, and protect all `/items` routes so unauthenticated requests are rejected before Lambda.
-
 # chore-app
 
 Household chore timers app that doubles as an AWS SAA-aligned reference architecture.
@@ -11,6 +9,22 @@ Use managed AWS services with clear boundaries:
 - API Gateway
 - Lambda
 - DynamoDB (single-table, household-scoped data)
+
+## Project Intent & Scope
+
+This repository contains a UI-focused MVP developed to support an Android application built as part of a B.S. Software Engineering capstone project.
+
+The primary goals of this MVP are:
+- Validate user flows and interaction design
+- Demonstrate system boundaries and service responsibilities
+- Serve as a reference architecture aligned with AWS SAA concepts
+
+While the architecture reflects production patterns, backend functionality is intentionally
+scoped to support UI demonstration and iteration rather than full production hardening. 
+
+## Architectural Context
+
+This web-based MVP explores a cloud-backed, managed-services architecture aligned with AWS SAA concepts. The companion Android capstone application intentionally adopts a different approach—local-first, offline-capable, and data-sovereign by design. The two implementations represent a deliberate comparison of architectural tradeoffs within the same problem domain.
 
 ## Build: REST API -> Lamda -> DynamoDB
 
