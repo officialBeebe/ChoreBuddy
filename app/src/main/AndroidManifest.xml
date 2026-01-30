@@ -11,6 +11,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ChoreBuddy">
+        <activity android:name=".UI.ChoreDetails"
+            android:exported="false"
+            android:label="Chore Details"
+            android:parentActivityName=".UI.ChoreList"/>
+        <activity android:name=".UI.ChoreList"
+            android:exported="false"
+            android:label="Chore List"
+            android:parentActivityName=".UI.MainActivity"/>
         <activity
             android:name=".UI.MainActivity"
             android:exported="true">
