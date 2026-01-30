@@ -11,18 +11,21 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.dylanbeebe.chorebuddy.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
+        setEdgeToEdgeContentView(R.layout.activity_main);
+
+
+        // countdown 3, 2, 1, then start ChoreList activity
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 
         Intent intent = new Intent(MainActivity.this, ChoreList.class);
         startActivity(intent);
@@ -30,4 +33,6 @@ public class MainActivity extends AppCompatActivity {
 }
 
 // https://github.com/material-components/material-components-android/tree/master/docs/components
+
+// https://fonts.google.com/icons
 
