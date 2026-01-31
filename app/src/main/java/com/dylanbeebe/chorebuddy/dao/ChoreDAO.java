@@ -1,5 +1,6 @@
 package com.dylanbeebe.chorebuddy.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Dao
 public interface ChoreDAO {
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     long insert(Chore chore);
 
@@ -22,9 +24,9 @@ public interface ChoreDAO {
     @Delete
     void delete(Chore chore);
 
-    @Query("SELECT * FROM chores ORDER BY id ASC;")
-    List<Chore> getAllChores();
+    @Query("SELECT * FROM chores ORDER BY id ASC")
+    LiveData<List<Chore>> getAllChores(); // Required LiveData for asynchronous operations
 
-    @Query("SELECT * FROM chores WHERE id = :choreId;")
-    Chore getChoreById(long choreId);
+    @Query("SELECT * FROM chores WHERE id = :choreId")
+    LiveData<Chore> getChoreById(long choreId);
 }
