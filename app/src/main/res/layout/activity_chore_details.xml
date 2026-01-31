@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- ==================== -->
+    <!-- HERO / STATUS HEADER -->
+    <!-- ==================== -->
+    <LinearLayout
+        android:id="@+id/choreDetails_hero"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingTop="48dp"
+        android:paddingBottom="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Chore name -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/choreDetails_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chore Name"
+            android:textAlignment="center"
+            android:textAppearance="?attr/textAppearanceHeadlineLarge"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Progress ring -->
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/choreDetails_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:indicatorSize="160dp"
+            app:trackThickness="16dp" />
+
+        <!-- Timer -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/choreDetails_timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00:00:00"
+            android:textAlignment="center"
+            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+
+    <!-- DIVIDER -->
+    <View
+        android:id="@+id/choreDetails_divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="24dp"
+        android:background="@color/material_dynamic_secondary50"
+        app:layout_constraintTop_toBottomOf="@id/choreDetails_hero"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- ================= -->
+    <!-- SCROLLING FORM -->
+    <!-- ================= -->
+    <ScrollView
+        android:id="@+id/choreDetails_form"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/choreDetails_divider"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:clipToPadding="false">
+
+        <!-- Form -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingVertical="24dp"
+            android:paddingHorizontal="48dp">
+
+            <!-- Chore name -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/chore_name_layout"
+                style="?attr/textInputOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:hint="@string/chore_name_label"
+                app:helperText="@string/chore_name_support">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Due date -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/chore_due_date_layout"
+                style="?attr/textInputOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:hint="@string/chore_due_date_hint"
+                app:helperText="@string/chore_due_date_support"
+                app:endIconMode="custom"
+                app:endIconDrawable="@drawable/calendar"
+                app:endIconContentDescription="@string/open_date_picker">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/chore_due_date_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Repeat toggle -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:paddingVertical="12dp">
+
+                <TextView
+                    android:id="@+id/chore_repeat_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chore_repeat_label"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/chore_repeat_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Repeat frequency -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/repeat_frequency_layout"
+                style="?attr/textInputOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:hint="@string/chore_repeat_frequency_label"
+                app:helperText="@string/chore_repeat_frequency_support"
+                app:startIconDrawable="@drawable/remove"
+                app:startIconContentDescription="@string/decrement"
+                app:endIconMode="custom"
+                app:endIconDrawable="@drawable/add"
+                app:endIconContentDescription="@string/increment">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/repeat_frequency_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:inputType="none"
+                    android:gravity="center"
+                    android:text="1" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Alert toggle -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="12dp">
+
+                <TextView
+                    android:id="@+id/chore_alert_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chore_alert_label"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/chore_alert_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- BOTTOM ACTION BAR -->
+    <LinearLayout
+        android:id="@+id/choreDetails_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Delete (left) -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/choreDetails_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/delete"
+            app:useCompatPadding="false"
+            android:outlineProvider="none" />
+
+        <!-- Spacer -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Save (right) -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/choreDetails_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/save"
+            app:useCompatPadding="false"
+            android:outlineProvider="none"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
