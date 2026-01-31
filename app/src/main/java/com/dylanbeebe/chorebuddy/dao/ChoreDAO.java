@@ -25,4 +25,6 @@ public interface ChoreDAO {
     @Query("SELECT * FROM chores ORDER BY id ASC;")
     List<Chore> getAllChores();
 
+    @Query("SELECT * FROM chores WHERE id = :choreId;")
+    Chore getChoreById(long choreId);
 }

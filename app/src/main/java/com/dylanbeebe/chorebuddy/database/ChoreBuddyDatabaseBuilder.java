@@ -7,11 +7,14 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.dylanbeebe.chorebuddy.dao.ChoreDAO;
+import com.dylanbeebe.chorebuddy.dao.CompletedChoreDAO;
 import com.dylanbeebe.chorebuddy.entities.Chore;
+import com.dylanbeebe.chorebuddy.entities.CompletedChore;
 
-@Database(entities = {Chore.class}, version = 0, exportSchema = false)
+@Database(entities = {Chore.class, CompletedChore.class}, version = 1, exportSchema = false)
 public abstract class ChoreBuddyDatabaseBuilder extends RoomDatabase {
     public abstract ChoreDAO choreDAO();
+    public abstract CompletedChoreDAO completedChoreDAO();
 
     private static volatile ChoreBuddyDatabaseBuilder INSTANCE;
 

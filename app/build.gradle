@@ -15,7 +15,12 @@ android {
         versionCode 1
         versionName "1.0"
 
+        buildConfigField "int", "DB_THREADS", "3"
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildFeatures {
+        buildConfig = true;
     }
 
     buildTypes {
