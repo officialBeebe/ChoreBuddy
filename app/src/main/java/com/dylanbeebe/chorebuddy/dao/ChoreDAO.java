@@ -29,4 +29,7 @@ public interface ChoreDAO {
 
     @Query("SELECT * FROM chores WHERE id = :choreId")
     LiveData<Chore> getChoreById(long choreId);
+
+    @Query("SELECT count(*) FROM chores")
+    int getChoreCount();
 }

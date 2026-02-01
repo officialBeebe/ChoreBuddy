@@ -4,6 +4,7 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
+import com.dylanbeebe.chorebuddy.BuildConfig;
 import com.dylanbeebe.chorebuddy.dao.ChoreDAO;
 import com.dylanbeebe.chorebuddy.dao.CompletedChoreDAO;
 import com.dylanbeebe.chorebuddy.entities.Chore;
@@ -19,7 +20,7 @@ public class Repository {
     private final CompletedChoreDAO completedChoreDAO;
 
     private static final ExecutorService executor =
-            Executors.newFixedThreadPool(3); // or BuildConfig.DB_THREADS
+            Executors.newFixedThreadPool(BuildConfig.DB_THREADS); // or BuildConfig.DB_THREADS
 
     public Repository(Application application) {
         ChoreBuddyDatabaseBuilder db =
@@ -37,6 +38,10 @@ public class Repository {
 
     public LiveData<Chore> getChoreById(long choreId) {
         return choreDAO.getChoreById(choreId);
+    }
+
+    public int getChoreCount() {
+        return choreDAO.getChoreCount();
     }
 
     public void insertChore(Chore chore) {
