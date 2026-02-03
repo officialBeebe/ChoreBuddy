@@ -7,13 +7,14 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dylanbeebe.chorebuddy.R;
 import com.dylanbeebe.chorebuddy.entities.Chore;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.android.material.textview.MaterialTextView;
 
 import java.util.List;
 
@@ -50,13 +51,15 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
     }
 
     public class ChoreViewHolder extends RecyclerView.ViewHolder {
-        private final TextView choreListItem_titleTextView;
-        private final TextView choreListItem_remainingTimeTextView;
+        private final MaterialTextView choreListItem_titleTextView;
+        private final MaterialTextView choreListItem_remainingTimeTextView;
+        private final CircularProgressIndicator choreListItem_circularProgressIndicator;
 
         private ChoreViewHolder(@NonNull View itemView) {
             super(itemView);
             choreListItem_titleTextView = itemView.findViewById(R.id.choreListItem_titleTextView);
             choreListItem_remainingTimeTextView = itemView.findViewById(R.id.choreListItem_remainingTimeTextView);
+            choreListItem_circularProgressIndicator = itemView.findViewById(R.id.choreListItem_circularProgressIndicator);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -87,13 +90,15 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
 
         holder.choreListItem_titleTextView.setText(current.getName());
 
+        holder.choreListItem_circularProgressIndicator.setProgress(current.getProgressInt());
+
         long remainingMillis = Math.max(
                 0,
                 current.getEndAt() - System.currentTimeMillis()
         );
 
         holder.choreListItem_remainingTimeTextView
-                .setText(TimeFormatter.formatDuration(remainingMillis));
+                .setText(FTime.formatDuration(remainingMillis));
     }
 
 

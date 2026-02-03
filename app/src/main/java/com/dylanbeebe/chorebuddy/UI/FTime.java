@@ -1,6 +1,9 @@
 package com.dylanbeebe.chorebuddy.UI;
 
-public class TimeFormatter {
+public class FTime {
+    // TODO: this can be a method inside of Chore.class to be called on getFormattedDuration
+    // Currently when ChoreDetails.class hydrates, there is a brief moment where the unformatted millis (or something) is present beneath the timer.
+
     public static String formatDuration(long millis) {
         long totalSeconds = millis / 1000;
 

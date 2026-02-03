@@ -15,104 +15,122 @@ public class Chore {
 
     @PrimaryKey(autoGenerate = true)
     private long id;
-
-    private String name;
-
-    // Stored as epoch millis; Room supports long natively
-    private long createdAt;
-
-    // Start of chore lifecycle (epoch millis)
-    private long startAt;
-
-    // Scheduled completion time (epoch millis)
-    private long endAt;
-
-    // Repetition configuration
-    private boolean isRepeat;
-    private int repeatDays;
-
-    // Optional user alert flag
-    private boolean isAlert;
-
-    // Soft-enable flag (allows deactivation without deletion)
-    private boolean isActive;
+    private String name = "";
+    private long createdAt = System.currentTimeMillis(); // Stored as epoch millis; Room supports long natively
+    private long startAt= System.currentTimeMillis(); // Start of chore lifecycle (epoch millis)
+    private long endAt= System.currentTimeMillis(); // Scheduled completion time (epoch millis)
+    private boolean isRepeat = false;
+    private int repeatDays = 0;
+    private boolean isAlert = false;
+    private boolean isActive = true;
 
     public Chore(long id, String name, long createdAt, long startAt, long endAt, boolean isRepeat, int repeatDays, boolean isAlert, boolean isActive) {
         this.id = id;
-        this.name = name;
+        this.name = name != null ? name : "";
         this.createdAt = createdAt;
         this.startAt = startAt;
         this.endAt = endAt;
         this.isRepeat = isRepeat;
-        this.repeatDays = repeatDays;
+        this.repeatDays = isRepeat ? Math.max(0, repeatDays) : 0;
         this.isAlert = isAlert;
         this.isActive = isActive;
     }
 
-    //    /**
-//     * Constructs a minimal {@code Chore}.
-//     *
-//     * <ul>
-//     *     <li>Non-repeating</li>
-//     *     <li>No alert</li>
-//     *     <li>Active by default</li>
-//     * </ul>
-//     *
-//     * <p>Note: {@code id} should be {@code 0} to allow Room auto-generation.</p>
-//     */
-//    public Chore(long id, String name, long createdAt, long startAt, long endAt) {
-//        this(id, name, createdAt, startAt, endAt, false, 0, false, true);
-//    }
-//
-//    /**
-//     * Full constructor.
-//     */
-//    public Chore(long id, String name, long createdAt, long startAt, long endAt,
-//                 boolean isRepeat, int repeatDays, boolean isAlert, boolean isActive) {
-//
-//        this.id = id;
-//        this.name = name;
-//        this.createdAt = createdAt;
-//        this.startAt = startAt;
-//        this.endAt = endAt;
-//        this.isRepeat = isRepeat;
-//        this.repeatDays = repeatDays;
-//        this.isAlert = isAlert;
-//        this.isActive = isActive;
-//    }
-
-    /**
-     * Allegedly required by Room for reflective instantiation.
-     */
-    @Ignore
-    public Chore() {}
+    public Chore() {
+    }
 
     /* ---- Accessors ---- */
 
-    public long getId() { return id; }
-    public void setId(long id) { this.id = id; }
+    public long getId() {
+        return id;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public void setId(long id) {
+        this.id = id;
+    }
 
-    public long getCreatedAt() { return createdAt; }
-    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+    public String getName() {
+        return name;
+    }
 
-    public long getStartAt() { return startAt; }
-    public void setStartAt(long startAt) { this.startAt = startAt; }
+    public void setName(String name) {
+        this.name = name != null ? name : "";
+    }
 
-    public long getEndAt() { return endAt; }
-    public void setEndAt(long endAt) { this.endAt = endAt; }
+    public long getCreatedAt() {
+        return createdAt;
+    }
 
-    public boolean isRepeat() { return isRepeat; }
-    public void setRepeat(boolean repeat) { isRepeat = repeat; }
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
+    }
 
-    public int getRepeatDays() { return repeatDays; }
-    public void setRepeatDays(int repeatDays) { this.repeatDays = repeatDays; }
+    public long getStartAt() {
+        return startAt;
+    }
 
-    public boolean isAlert() { return isAlert; }
-    public void setAlert(boolean alert) { isAlert = alert; }
+    public void setStartAt(long startAt) {
+        this.startAt = startAt;
+    }
 
-    public boolean isActive() { return isActive; }
-    public void setActive(boolean active) { isActive = active; }
+    public long getEndAt() {
+        return endAt;
+    }
+
+    public void setEndAt(long endAt) {
+        this.endAt = endAt;
+    }
+
+    public boolean isRepeat() {
+        return isRepeat;
+    }
+
+    public int getRepeatDays() {
+        return isRepeat ? repeatDays : 0;
+    }
+
+    public void setRepeat(boolean repeat) {
+        this.isRepeat = repeat;
+        if (!repeat) {
+            this.repeatDays = 0;
+        }
+    }
+
+    public void setRepeatDays(int repeatDays) {
+        this.repeatDays = isRepeat ? Math.max(0, repeatDays) : 0;
+    }
+
+
+    public boolean isAlert() {
+        return isAlert;
+    }
+
+    public void setAlert(boolean alert) {
+        isAlert = alert;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public int getProgressInt() {
+        long tCurrent = System.currentTimeMillis();
+        long tStart = this.getStartAt();
+        long tEnd = this.getEndAt();
+        long tTotal = tEnd - tStart;
+        long tElapsed = tCurrent - tStart;
+
+        double tElapsedRatio = (double) tElapsed / tTotal;
+        return (int) Math.floor(tElapsedRatio * 10000); // Figure out later why i have to x1000 instead of 100
+    }
+
+    public long getRemainingTime() {
+        long tCurrent = System.currentTimeMillis();
+        long tElapsed = tCurrent - this.getStartAt();
+        return this.getEndAt() - tElapsed;
+    }
 }

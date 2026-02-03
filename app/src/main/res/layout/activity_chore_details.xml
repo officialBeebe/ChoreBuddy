@@ -9,44 +9,45 @@
     <!-- HERO / STATUS HEADER -->
     <!-- ==================== -->
     <LinearLayout
-        android:id="@+id/choreDetails_hero"
+        android:id="@+id/choreDetails_heroLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:paddingTop="48dp"
-        android:paddingBottom="16dp"
+        android:layout_marginVertical="48dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <!-- Chore name -->
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/choreDetails_title"
+            android:id="@+id/choreDetails_choreHeroNameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Chore Name"
             android:textAlignment="center"
             android:textAppearance="?attr/textAppearanceHeadlineLarge"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="6dp" />
 
         <!-- Progress ring -->
         <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/choreDetails_progress"
+            android:id="@+id/choreDetails_choreHeroProgressIndicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:indicatorSize="160dp"
-            app:trackThickness="16dp" />
+            app:indicatorSize="120dp"
+            app:trackThickness="12dp" />
 
         <!-- Timer -->
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/choreDetails_timer"
+            android:id="@+id/choreDetails_choreHeroTimerTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="00:00:00:00"
             android:textAlignment="center"
             android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="6dp" />
 
     </LinearLayout>
 
@@ -57,7 +58,7 @@
         android:layout_height="1dp"
         android:layout_marginHorizontal="24dp"
         android:background="@color/material_dynamic_secondary50"
-        app:layout_constraintTop_toBottomOf="@id/choreDetails_hero"
+        app:layout_constraintTop_toBottomOf="@id/choreDetails_heroLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -65,7 +66,7 @@
     <!-- SCROLLING FORM -->
     <!-- ================= -->
     <ScrollView
-        android:id="@+id/choreDetails_form"
+        android:id="@+id/choreDetails_formLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
@@ -83,28 +84,57 @@
             android:paddingVertical="24dp"
             android:paddingHorizontal="48dp">
 
+            <!-- Active toggle -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:id="@+id/choreDetails_choreIsActiveLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chore_active_label"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/choreDetails_choreIsActiveSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:checked="true"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <!-- Chore name -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/chore_name_layout"
+                android:id="@+id/choreDetails_choreNameLayout"
                 style="?attr/textInputOutlinedStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="12dp"
                 android:hint="@string/chore_name_label"
                 app:helperText="@string/chore_name_support">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/choreDetails_choreNameEditText"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:enabled="false" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Due date -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/chore_due_date_layout"
+                android:id="@+id/choreDetails_choreEndAtLayout"
                 style="?attr/textInputOutlinedStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="12dp"
                 android:hint="@string/chore_due_date_hint"
                 app:helperText="@string/chore_due_date_support"
                 app:endIconMode="custom"
@@ -112,23 +142,23 @@
                 app:endIconContentDescription="@string/open_date_picker">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/chore_due_date_value"
+                    android:id="@+id/choreDetails_choreEndAtEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:focusable="false"
-                    android:clickable="true"
-                    android:inputType="none" />
+                    android:cursorVisible="false"
+                    android:inputType="none"
+                    android:longClickable="false" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Repeat toggle -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:paddingVertical="12dp">
+                android:layout_marginBottom="12dp">
 
                 <TextView
-                    android:id="@+id/chore_repeat_label"
+                    android:id="@+id/choreDetails_choreIsRepeatLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/chore_repeat_label"
@@ -138,22 +168,23 @@
                     app:layout_constraintBottom_toBottomOf="parent" />
 
                 <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/chore_repeat_switch"
+                    android:id="@+id/choreDetails_choreIsRepeatSwitch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent" />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:enabled="false"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- Repeat frequency -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/repeat_frequency_layout"
+                android:id="@+id/choreDetails_choreRepeatDaysLayout"
                 style="?attr/textInputOutlinedStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="12dp"
                 android:hint="@string/chore_repeat_frequency_label"
                 app:helperText="@string/chore_repeat_frequency_support"
                 app:startIconDrawable="@drawable/remove"
@@ -163,23 +194,25 @@
                 app:endIconContentDescription="@string/increment">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/repeat_frequency_value"
+                    android:id="@+id/choreDetails_choreRepeatDaysEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:focusable="false"
+                    android:cursorVisible="false"
                     android:inputType="none"
+                    android:longClickable="false"
                     android:gravity="center"
-                    android:text="1" />
+                    android:text="0" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Alert toggle -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingVertical="12dp">
+                android:layout_marginBottom="12dp">
 
                 <TextView
-                    android:id="@+id/chore_alert_label"
+                    android:id="@+id/choreDetails_choreIsAlertLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/chore_alert_label"
@@ -189,13 +222,14 @@
                     app:layout_constraintBottom_toBottomOf="parent" />
 
                 <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/chore_alert_switch"
+                    android:id="@+id/choreDetails_choreIsAlertSwitch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent" />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:enabled="false"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 
