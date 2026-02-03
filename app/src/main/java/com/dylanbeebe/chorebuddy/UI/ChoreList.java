@@ -23,6 +23,7 @@ public class ChoreList extends BaseActivity {
     private ChoreAdapter choreAdapter;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -33,8 +34,8 @@ public class ChoreList extends BaseActivity {
         repository = new Repository(getApplication());
 
         // Add Chore FAB
-        FloatingActionButton addFab = findViewById(R.id.choreList_add);
-        addFab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton addChoreFAB = findViewById(R.id.choreList_add);
+        addChoreFAB.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
@@ -42,6 +43,15 @@ public class ChoreList extends BaseActivity {
                 startActivity(intent);
             }
 
+        });
+
+        FloatingActionButton reportChoresFAB = findViewById(R.id.choreList_report);
+        reportChoresFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Report chores
+                Toast.makeText(ChoreList.this, "Report FAB tapped.", Toast.LENGTH_LONG).show();
+            }
         });
 
         // Report FAB
@@ -96,7 +106,7 @@ public class ChoreList extends BaseActivity {
         // Maximum
         String chore_2_name = "Balance checkbook";
         long chore_2_endAt =
-                LocalDate.of(2026, 2, 9)
+                LocalDate.of(2026, 2, 3) // TODO: edit this for quicker progress indicator testing
                         .atStartOfDay(ZoneId.systemDefault())
                         .toInstant()
                         .toEpochMilli(); // Feb 8, 2026 inclusive → store Feb 9, 2026 at 00:00

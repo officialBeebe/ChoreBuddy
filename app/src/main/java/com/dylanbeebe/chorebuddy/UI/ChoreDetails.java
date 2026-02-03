@@ -53,7 +53,7 @@ public class ChoreDetails extends BaseActivity {
 
     // Buttons
     FloatingActionButton saveChoreFAB;
-    FloatingActionButton reportChoresFAB;
+    FloatingActionButton deleteChoreFAB;
 
     // Data
     private Repository repository;
@@ -61,6 +61,7 @@ public class ChoreDetails extends BaseActivity {
     // Ticker
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable ticker;
+    private static final Duration TICK_INTERVAL = Duration.ofSeconds(1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +83,10 @@ public class ChoreDetails extends BaseActivity {
         choreRepeatDaysLayout = findViewById(R.id.choreDetails_choreRepeatDaysLayout);
         choreRepeatDaysEditText = findViewById(R.id.choreDetails_choreRepeatDaysEditText);
         choreIsAlertSwitch = findViewById(R.id.choreDetails_choreIsAlertSwitch);
+
+        // Bind FABs
+        saveChoreFAB = findViewById(R.id.choreDetails_save);
+        deleteChoreFAB = findViewById(R.id.choreDetails_delete);
 
 
         // Intent
@@ -155,6 +160,7 @@ public class ChoreDetails extends BaseActivity {
             @Override
             public void afterTextChanged(Editable s) {}
         });
+
 
 
 
@@ -236,7 +242,7 @@ public class ChoreDetails extends BaseActivity {
 
         choreIsActiveSwitch.setChecked(chore.isActive());
 
-
+        recalcHero(chore);
     }
 
     private int parseIntOrZero(Editable text) {
@@ -315,9 +321,9 @@ public class ChoreDetails extends BaseActivity {
         tickerRunning = true;
         ticker = () -> {
             if (currentChore != null) {
-                updateHeroTimer(currentChore);
+                recalcHero(currentChore);
             }
-            handler.postDelayed(ticker, 1000);
+            handler.postDelayed(ticker, TICK_INTERVAL.toMillis());
         };
         handler.post(ticker);
     }
@@ -326,19 +332,6 @@ public class ChoreDetails extends BaseActivity {
         tickerRunning = false;
         handler.removeCallbacks(ticker);
     }
-
-    private void updateHeroTimer(Chore chore) {
-        long remaining = Math.max(
-                0,
-                chore.getEndAt() - System.currentTimeMillis()
-        );
-
-        choreHeroTimerTextView.setText(
-                FTime.formatDuration(remaining)
-        );
-    }
-
-
 
     private boolean canEditRepeatDays() {
         return choreIsActiveSwitch.isChecked()
@@ -359,18 +352,40 @@ public class ChoreDetails extends BaseActivity {
 
     private void updateHeroForEndDateChange() {
         if (currentChore == null) return;
-
-        long now = System.currentTimeMillis();
-        long endAt = currentChore.getEndAt();
-
-        if (endAt > now) {
-            startHeroTicker();
-        } else {
-            stopHeroTicker();
-            choreHeroTimerTextView.setText("00:00:00");
-            choreHeroProgressIndicator.setProgress(0);
-        }
+        recalcHero(currentChore);
     }
+
+    private void recalcHero(Chore chore) {
+        Instant now = Instant.now();
+        Instant start = Instant.ofEpochMilli(chore.getStartAt());
+        Instant end = Instant.ofEpochMilli(chore.getEndAt());
+
+        Duration total = Duration.between(start, end);
+        Duration elapsed = Duration.between(start, now);
+        Duration remaining = Duration.between(now, end);
+
+        // ----- TIMER (allow negative) -----
+        choreHeroTimerTextView.setText(
+                FTime.formatDuration(remaining.toMillis())
+        );
+
+        // ----- PROGRESS -----
+        int progressPct;
+
+        if (total.isZero() || total.isNegative()) {
+            progressPct = 100;
+        } else if (elapsed.isNegative()) {
+            progressPct = 1; // not started yet
+        } else {
+            double ratio = (double) elapsed.toMillis() / total.toMillis();
+            ratio = Math.min(1.0, Math.max(0.0, ratio));
+            progressPct = (int) Math.round(ratio * 100);
+            progressPct = Math.max(1, progressPct);
+        }
+
+        choreHeroProgressIndicator.setProgress(progressPct);
+    }
+
 
 
 }
