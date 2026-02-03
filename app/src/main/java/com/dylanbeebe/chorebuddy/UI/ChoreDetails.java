@@ -14,6 +14,7 @@ import com.dylanbeebe.chorebuddy.R;
 import com.dylanbeebe.chorebuddy.database.Repository;
 import com.dylanbeebe.chorebuddy.entities.Chore;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
@@ -22,6 +23,8 @@ import com.google.android.material.textview.MaterialTextView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -48,8 +51,11 @@ public class ChoreDetails extends BaseActivity {
     MaterialSwitch choreIsAlertSwitch;
     MaterialSwitch choreIsActiveSwitch;
 
-    // Data
+    // Buttons
+    FloatingActionButton saveChoreFAB;
+    FloatingActionButton reportChoresFAB;
 
+    // Data
     private Repository repository;
 
     // Ticker
@@ -151,6 +157,8 @@ public class ChoreDetails extends BaseActivity {
         });
 
 
+
+
     }
 
     private void hydrateUI(Chore chore) {
@@ -176,12 +184,31 @@ public class ChoreDetails extends BaseActivity {
         // long tElapsed = tCurrent - tStart;
 
         // double tElapsedRatio = (double) tElapsed / tTotal;
-        // int progressPct = (int) Math.floor(tElapsedRatio * 10000); // Figure out later why i have to x1000 instead of 100
 
-        choreHeroProgressIndicator.setProgress(chore.getProgressInt());
+        Instant now = Instant.now();
+        Instant start = Instant.ofEpochMilli(chore.getStartAt());
+        Instant end = Instant.ofEpochMilli(chore.getEndAt());
+        Duration total = Duration.between(start, end);
+        Duration elapsed = Duration.between(start, now);
+        Duration remaining = Duration.between(now, end);
+        int progressPct;
 
-        long tRemaining = chore.getRemainingTime();
-        String formattedTRemaining = FTime.formatDuration(tRemaining);
+        // TODO: progressPct must be a number between 1 and 100
+
+        if (total.isZero() || total.isNegative()) {
+            progressPct = 100;
+        } else {
+            double ratio = (double) elapsed.toMillis() / (double) total.toMillis();
+
+            ratio = Math.max(0.0, Math.min(1.0, ratio));
+            progressPct = (int) Math.round(ratio * 100);
+
+            progressPct = Math.max(1, progressPct); // minimum 1
+        }
+
+        choreHeroProgressIndicator.setProgress(progressPct);
+
+        String formattedTRemaining = FTime.formatDuration(remaining.toMillis());
         choreHeroTimerTextView.setText(formattedTRemaining); // TODO: That something weird happening here with the time? idk
 
         // Name

@@ -16,6 +16,8 @@ import com.dylanbeebe.chorebuddy.entities.Chore;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHolder> {
@@ -90,15 +92,31 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
 
         holder.choreListItem_titleTextView.setText(current.getName());
 
-        holder.choreListItem_circularProgressIndicator.setProgress(current.getProgressInt());
+        Instant now = Instant.now();
+        Instant start = Instant.ofEpochMilli(current.getStartAt());
+        Instant end = Instant.ofEpochMilli(current.getEndAt());
+        Duration total = Duration.between(start, end);
+        Duration elapsed = Duration.between(start, now);
+        Duration remaining = Duration.between(now, end);
+        int progressPct;
 
-        long remainingMillis = Math.max(
-                0,
-                current.getEndAt() - System.currentTimeMillis()
-        );
+        // TODO: progressPct must be a number between 1 and 100
+
+        if (total.isZero() || total.isNegative()) {
+            progressPct = 100;
+        } else {
+            double ratio = (double) elapsed.toMillis() / (double) total.toMillis();
+
+            ratio = Math.max(0.0, Math.min(1.0, ratio));
+            progressPct = (int) Math.round(ratio * 100);
+
+            progressPct = Math.max(1, progressPct); // minimum 1
+        }
+
+        holder.choreListItem_circularProgressIndicator.setProgress(progressPct);
 
         holder.choreListItem_remainingTimeTextView
-                .setText(FTime.formatDuration(remainingMillis));
+                .setText(FTime.formatDuration(remaining.toMillis()));
     }
 
 
