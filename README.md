@@ -1,10 +1,9 @@
 # Chore Buddy
 
 Household chore timer application exploring two contrasting architectures:
+
 - a cloud-backed web MVP
 - a privacy-first, offline-capable Android application
-
----
 
 ## Project Status
 
@@ -13,25 +12,23 @@ The primary application is now being rebuilt as a **privacy-focused, offline-fir
 
 Android MVP code will be added once the core feature set stabilizes.
 
----
-
 ## Project Scope
 
 This repository supports a B.S. Software Engineering capstone project and serves two purposes:
 
 ### 1. Web MVP (current contents)
+
 - Validate user flows and interaction design
 - Demonstrate system boundaries and service responsibilities
 - Serve as an AWS Solutions Architect Associate–aligned reference architecture
 
 ### 2. Android Application (in progress)
+
 - Local-first, offline-capable design
 - Privacy-oriented defaults (no background services, alerts off by default)
 - Minimal data collection with explicit user control
 
 Both implementations intentionally explore architectural tradeoffs within the same problem domain.
-
----
 
 ## Web MVP Architecture
 
@@ -44,8 +41,6 @@ The existing web MVP demonstrates a managed-services architecture aligned with A
 - DynamoDB (single-table, household-scoped data model)
 
 Backend functionality is intentionally scoped for UI exploration and architectural clarity rather than full production hardening.
-
----
 
 ## Android Application Direction
 
@@ -69,8 +64,6 @@ The Android application deliberately diverges from the web MVP and is designed a
 
 This approach prioritizes data ownership, transparency, and user control without external dependencies.
 
----
-
 ## Build References (Web MVP)
 
 ### REST API → Lambda → DynamoDB
@@ -82,11 +75,8 @@ Created using Vite with a React + TypeScript template.
 ### Deployment
 React UI deployed via AWS Amplify.
 
----
-
 ## Network Diagram (Web MVP)
 
 Retained for reference.
-
 
 <img width="762" height="305" alt="ChoresTimerAWSReactApp" src="https://github.com/user-attachments/assets/fb69c597-97d3-4431-bfe0-a498d0c58113" />
