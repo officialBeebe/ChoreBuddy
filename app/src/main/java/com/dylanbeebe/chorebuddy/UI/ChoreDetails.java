@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.widget.LinearLayout;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.LiveData;
@@ -43,6 +44,7 @@ public class ChoreDetails extends BaseActivity {
 
     // UI state
     ConstraintLayout choreDetailsLayout;
+    LinearLayout choreDetails_heroLayout;
     MaterialTextView choreHeroNameTextView;
     CircularProgressIndicator choreHeroProgressIndicator;
     MaterialTextView choreHeroTimerTextView;
@@ -77,6 +79,7 @@ public class ChoreDetails extends BaseActivity {
         choreDetailsLayout = findViewById(R.id.choreDetailsLayout);
 
         // Hero
+        choreDetails_heroLayout = findViewById(R.id.choreDetails_heroLayout);
         choreHeroNameTextView = findViewById(R.id.choreDetails_choreHeroNameTextView);
         choreHeroProgressIndicator = findViewById(R.id.choreDetails_choreHeroProgressIndicator);
         choreHeroTimerTextView = findViewById(R.id.choreDetails_choreHeroTimerTextView);
@@ -399,6 +402,8 @@ public class ChoreDetails extends BaseActivity {
 
 
         //choreDetailsLayout.setBackgroundColor(errorContainer);
+        choreDetails_heroLayout.setBackgroundColor(errorContainer);
+
         choreHeroProgressIndicator.setIndicatorColor(onErrorContainer);
 
 
@@ -408,11 +413,14 @@ public class ChoreDetails extends BaseActivity {
         int surface = MaterialColors.getColor(
                 choreDetailsLayout, com.google.android.material.R.attr.colorSurface
         );
+        int primaryContainer = MaterialColors.getColor(choreDetailsLayout, com.google.android.material.R.attr.colorPrimaryContainer);
         int primary = MaterialColors.getColor(
                 choreDetailsLayout, androidx.appcompat.R.attr.colorPrimary
         );
 
+
         choreDetailsLayout.setBackgroundColor(surface);
+        choreDetails_heroLayout.setBackgroundColor(primaryContainer);
         choreHeroProgressIndicator.setIndicatorColor(primary);
 
 
