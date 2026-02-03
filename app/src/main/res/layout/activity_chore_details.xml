@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/choreDetailsLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
 
     <!-- ==================== -->
     <!-- HERO / STATUS HEADER -->
@@ -21,7 +23,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Chore name -->
+        <!-- Chore Hero Name -->
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/choreDetails_choreHeroNameTextView"
             android:layout_width="wrap_content"
@@ -31,15 +33,17 @@
             android:textAppearance="?attr/textAppearanceHeadlineLarge"
             android:layout_marginBottom="6dp" />
 
-        <!-- Progress ring -->
+        <!-- Chore Hero Progress ring -->
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/choreDetails_choreHeroProgressIndicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:indicatorSize="120dp"
-            app:trackThickness="12dp" />
+            app:trackThickness="12dp"
+            app:trackColor="?attr/colorSurfaceDim"
+            app:indicatorColor="?attr/colorPrimary"/>
 
-        <!-- Timer -->
+        <!-- Chore Hero Timer -->
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/choreDetails_choreHeroTimerTextView"
             android:layout_width="wrap_content"
@@ -254,7 +258,8 @@
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/delete"
             app:useCompatPadding="false"
-            android:outlineProvider="none" />
+            android:outlineProvider="none"
+            app:backgroundTint="?attr/colorSurface" />
 
         <!-- Spacer -->
         <View
@@ -269,7 +274,8 @@
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/save"
             app:useCompatPadding="false"
-            android:outlineProvider="none"/>
+            android:outlineProvider="none"
+            app:backgroundTint="?attr/colorPrimaryContainer"/>
 
     </LinearLayout>
 

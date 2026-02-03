@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.dylanbeebe.chorebuddy.R;
 import com.dylanbeebe.chorebuddy.entities.Chore;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
 
@@ -53,12 +55,14 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
     }
 
     public class ChoreViewHolder extends RecyclerView.ViewHolder {
+        private final MaterialCardView choreListItem;
         private final MaterialTextView choreListItem_titleTextView;
         private final MaterialTextView choreListItem_remainingTimeTextView;
         private final CircularProgressIndicator choreListItem_circularProgressIndicator;
 
         private ChoreViewHolder(@NonNull View itemView) {
             super(itemView);
+            choreListItem = itemView.findViewById(R.id.choreListItem);;
             choreListItem_titleTextView = itemView.findViewById(R.id.choreListItem_titleTextView);
             choreListItem_remainingTimeTextView = itemView.findViewById(R.id.choreListItem_remainingTimeTextView);
             choreListItem_circularProgressIndicator = itemView.findViewById(R.id.choreListItem_circularProgressIndicator);
@@ -104,6 +108,20 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
 
         if (total.isZero() || total.isNegative()) {
             progressPct = 100;
+
+            int colorErrorContainer = MaterialColors.getColor(
+                    holder.choreListItem,
+                    com.google.android.material.R.attr.colorErrorContainer
+            );
+
+            int colorOnErrorContainer = MaterialColors.getColor(
+                    holder.choreListItem_circularProgressIndicator,
+                    com.google.android.material.R.attr.colorOnErrorContainer
+            );
+
+            holder.choreListItem.setCardBackgroundColor(colorErrorContainer);
+            holder.choreListItem_circularProgressIndicator.setIndicatorColor(colorOnErrorContainer);
+
         } else {
             double ratio = (double) elapsed.toMillis() / (double) total.toMillis();
 

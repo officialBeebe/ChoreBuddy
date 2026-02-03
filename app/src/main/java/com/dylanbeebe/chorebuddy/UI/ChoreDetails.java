@@ -2,17 +2,20 @@ package com.dylanbeebe.chorebuddy.UI;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.LiveData;
 
 import com.dylanbeebe.chorebuddy.R;
 import com.dylanbeebe.chorebuddy.database.Repository;
 import com.dylanbeebe.chorebuddy.entities.Chore;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
@@ -39,6 +42,7 @@ public class ChoreDetails extends BaseActivity {
     private LiveData<Chore> currentChoreLiveData;
 
     // UI state
+    ConstraintLayout choreDetailsLayout;
     MaterialTextView choreHeroNameTextView;
     CircularProgressIndicator choreHeroProgressIndicator;
     MaterialTextView choreHeroTimerTextView;
@@ -68,6 +72,9 @@ public class ChoreDetails extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setEdgeToEdgeContentView(R.layout.activity_chore_details);
+
+        // Layout
+        choreDetailsLayout = findViewById(R.id.choreDetailsLayout);
 
         // Hero
         choreHeroNameTextView = findViewById(R.id.choreDetails_choreHeroNameTextView);
@@ -150,7 +157,8 @@ public class ChoreDetails extends BaseActivity {
 
         choreNameEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -158,11 +166,9 @@ public class ChoreDetails extends BaseActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
-
-
-
 
 
     }
@@ -175,45 +181,12 @@ public class ChoreDetails extends BaseActivity {
         // Hero
         choreHeroNameTextView.setText(chore.getName());
 
-        // long now = System.currentTimeMillis();
-
-        // long start = chore.getStartAt();
-        // long end = chore.getEndAt();
-
-        // long duration = Math.max(1, end - start);
-        // long remaining = Math.max(0, end - now);
-
-        // long tCurrent = System.currentTimeMillis();
-        // long tStart = chore.getStartAt();
-        // long tEnd = chore.getEndAt();
-        // long tTotal = tEnd - tStart;
-        // long tElapsed = tCurrent - tStart;
-
-        // double tElapsedRatio = (double) tElapsed / tTotal;
+        applyVisualState(chore);
+        recalcHero(chore);
 
         Instant now = Instant.now();
-        Instant start = Instant.ofEpochMilli(chore.getStartAt());
         Instant end = Instant.ofEpochMilli(chore.getEndAt());
-        Duration total = Duration.between(start, end);
-        Duration elapsed = Duration.between(start, now);
         Duration remaining = Duration.between(now, end);
-        int progressPct;
-
-        // TODO: progressPct must be a number between 1 and 100
-
-        if (total.isZero() || total.isNegative()) {
-            progressPct = 100;
-        } else {
-            double ratio = (double) elapsed.toMillis() / (double) total.toMillis();
-
-            ratio = Math.max(0.0, Math.min(1.0, ratio));
-            progressPct = (int) Math.round(ratio * 100);
-
-            progressPct = Math.max(1, progressPct); // minimum 1
-        }
-
-        choreHeroProgressIndicator.setProgress(progressPct);
-
         String formattedTRemaining = FTime.formatDuration(remaining.toMillis());
         choreHeroTimerTextView.setText(formattedTRemaining); // TODO: That something weird happening here with the time? idk
 
@@ -242,6 +215,7 @@ public class ChoreDetails extends BaseActivity {
 
         choreIsActiveSwitch.setChecked(chore.isActive());
 
+        applyVisualState(chore);
         recalcHero(chore);
     }
 
@@ -356,6 +330,14 @@ public class ChoreDetails extends BaseActivity {
     }
 
     private void recalcHero(Chore chore) {
+        // NEW chore only (unsaved)
+        if (chore.getId() == 0) {
+            choreHeroTimerTextView.setText("00:00:00:00");
+            choreHeroProgressIndicator.setProgress(0);
+            applyVisualState(chore);
+            return;
+        }
+
         Instant now = Instant.now();
         Instant start = Instant.ofEpochMilli(chore.getStartAt());
         Instant end = Instant.ofEpochMilli(chore.getEndAt());
@@ -384,8 +366,59 @@ public class ChoreDetails extends BaseActivity {
         }
 
         choreHeroProgressIndicator.setProgress(progressPct);
+
+        applyVisualState(chore);
     }
 
+    private boolean isOverdue(Chore chore) {
+        if (chore == null) return false;
+        if (chore.getId() == 0) return false;          // not saved
+        if (!chore.isActive()) return false;           // inactive chores don't warn
+        if (chore.getEndAt() <= 0) return false;       // no date yet
+
+        return System.currentTimeMillis() > chore.getEndAt();
+    }
+
+    private void applyVisualState(Chore chore) {
+        boolean overdue = isOverdue(chore);
+
+        if (overdue) {
+            applyErrorColors();
+        } else {
+            applyPrimaryColors();
+        }
+    }
+
+    private void applyErrorColors() {
+        int errorContainer = MaterialColors.getColor(
+                choreDetailsLayout, com.google.android.material.R.attr.colorErrorContainer
+        );
+        int onErrorContainer = MaterialColors.getColor(
+                choreDetailsLayout, com.google.android.material.R.attr.colorOnErrorContainer
+        );
+
+
+        //choreDetailsLayout.setBackgroundColor(errorContainer);
+        choreHeroProgressIndicator.setIndicatorColor(onErrorContainer);
+
+
+    }
+
+    private void applyPrimaryColors() {
+        int surface = MaterialColors.getColor(
+                choreDetailsLayout, com.google.android.material.R.attr.colorSurface
+        );
+        int primary = MaterialColors.getColor(
+                choreDetailsLayout, androidx.appcompat.R.attr.colorPrimary
+        );
+
+        choreDetailsLayout.setBackgroundColor(surface);
+        choreHeroProgressIndicator.setIndicatorColor(primary);
+
+
+
+
+    }
 
 
 }

@@ -5,23 +5,5 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.ChoreBuddy" parent="Theme.Material3.DayNight.NoActionBar">
-
-        <!-- Primary action color (FAB, main buttons) -->
-        <item name="colorPrimary">#4CAF50</item>
-
-        <!-- Icon/text color ON primary -->
-        <item name="colorOnPrimary">#FFFFFF</item>
-
-        <!-- App background -->
-        <item name="android:colorBackground">#FFFFFF</item>
-
-        <!-- Cards / surfaces -->
-        <item name="colorSurface">#FFFFFF</item>
-
-        <!-- Text/icons on cards -->
-        <item name="colorOnSurface">#1C1B1F</item>
-
-    </style>
 
 </resources>

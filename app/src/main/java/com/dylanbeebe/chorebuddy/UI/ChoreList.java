@@ -49,20 +49,12 @@ public class ChoreList extends BaseActivity {
         reportChoresFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Debug inserts
+                // insertSampleChores(repository);
+
                 // Report chores
                 Toast.makeText(ChoreList.this, "Report FAB tapped.", Toast.LENGTH_LONG).show();
             }
-        });
-
-        // Report FAB
-        FloatingActionButton reportFab = findViewById(R.id.choreList_report);
-        reportFab.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                insertSampleChores(repository);
-            }
-
         });
 
         // Bind RecyclerView to chore list
