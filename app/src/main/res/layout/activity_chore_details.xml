@@ -206,7 +206,7 @@
                     android:inputType="none"
                     android:longClickable="false"
                     android:gravity="center"
-                    android:text="0"
+                    android:text="1"
                     android:enabled="false"/>
             </com.google.android.material.textfield.TextInputLayout>
 

@@ -34,6 +34,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -133,7 +134,7 @@ public class ChoreDetails extends BaseActivity {
             if (!canEditRepeatDays()) return;
 
             int current = parseIntOrZero(choreRepeatDaysEditText.getText());
-            if (current > 0) {
+            if (current > 1) {
                 choreRepeatDaysEditText.setText(String.valueOf(current - 1));
             }
         });
@@ -185,11 +186,11 @@ public class ChoreDetails extends BaseActivity {
         saveChoreFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(ChoreDetails.this, "Save FAB tapped.", Toast.LENGTH_LONG).show();
+                //Toast.makeText(ChoreDetails.this, "Save FAB tapped.", Toast.LENGTH_LONG).show();
 
                 if (choreNameEditText.getText().toString().isEmpty() || choreEndAtEditText.getText().toString().isEmpty()) {
                     Toast.makeText(ChoreDetails.this, "Minimum chore needs name and due date.", Toast.LENGTH_LONG).show();
-
+                    return;
                 }
 
 
@@ -212,11 +213,29 @@ public class ChoreDetails extends BaseActivity {
                         .toInstant()
                         .minusMillis(1);
 
+                // Today at start of day (local)
+                Instant todayStart = LocalDate.now(zone)
+                        .atStartOfDay(zone)
+                        .toInstant();
+
+                if (endAt.isBefore(todayStart)) {
+                    Toast.makeText(
+                            ChoreDetails.this,
+                            "Due date must be today or later.",
+                            Toast.LENGTH_LONG
+                    ).show();
+                    return;
+                }
+
                 currentChore.setEndAt(endAt.toEpochMilli()); // 23:59:59:999 of the end date
 
                 currentChore.setRepeat(choreIsRepeatSwitch.isChecked());
                 //currentChore.setAlert(choreIsAlertSwitch.isChecked());
                 currentChore.setActive(choreIsActiveSwitch.isChecked());
+
+                if (currentChore.isRepeat()) {
+                    currentChore.setRepeatDays(Integer.valueOf(choreRepeatDaysEditText.getText().toString().trim()));
+                }
 
                 if (currentChore.getId() == 0) {
                     repository.insertChore(currentChore);
@@ -280,16 +299,29 @@ public class ChoreDetails extends BaseActivity {
         choreNameEditText.setEnabled(chore.isActive());
 
         // End Date
-        if (chore.getId() != 0 && chore.getEndAt() > 0) {
+        if (chore.getId() != 0) {
+            ZoneId zone = ZoneId.systemDefault();
+
+            Instant todayStart = LocalDate.now(zone)
+                    .atStartOfDay(zone)
+                    .toInstant();
+
+            Instant endAt = Instant.ofEpochMilli(chore.getEndAt());
+
+            Instant displayDate =
+                    endAt.isBefore(todayStart)
+                            ? todayStart          // UI snaps to today
+                            : endAt;               // UI shows stored date
+
             SimpleDateFormat dateFormat =
                     new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
             choreEndAtEditText.setText(
-                    dateFormat.format(new Date(chore.getEndAt()))
+                    FTime.formatDateLocal(chore.getEndAt())
             );
-        } else {
-            choreEndAtEditText.setText(""); // <-- empty for new chore
         }
+
 
 
         // isRepeat
@@ -297,7 +329,8 @@ public class ChoreDetails extends BaseActivity {
         choreIsRepeatSwitch.setEnabled(chore.isActive());
 
         // repeatDays
-        choreRepeatDaysEditText.setText(String.valueOf(chore.getRepeatDays())); // int --> String
+        int repeatDays = chore.getRepeatDays();
+        choreRepeatDaysEditText.setText(String.valueOf(repeatDays)); // int --> String
         choreRepeatDaysEditText.setEnabled(chore.isRepeat()); // now check isRepeat
         //choreRepeatDaysEditText.setEnabled(chore.isActive()); // check active
 
@@ -344,13 +377,13 @@ public class ChoreDetails extends BaseActivity {
         datePicker.addOnPositiveButtonClickListener(selection -> {
             long endAt = normalizeToEndOfDay(selection);
 
-            //long now = System.currentTimeMillis();
-            //currentChore.setStartAt(now);     // 🔴 RESET START
+            long now = System.currentTimeMillis();
+            currentChore.setStartAt(now);     // 🔴 RESET START
             currentChore.setEndAt(endAt);
 
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             df.setTimeZone(TimeZone.getTimeZone("UTC"));
-            choreEndAtEditText.setText(df.format(new Date(endAt)));
+            choreEndAtEditText.setText(FTime.formatDateLocal(currentChore.getEndAt()));
 
             updateHeroForEndDateChange();
             recalcHero(currentChore);
@@ -435,7 +468,24 @@ public class ChoreDetails extends BaseActivity {
         // NEW chore only (unsaved)
         if (chore.getId() == 0 && choreEndAtEditText.getText().toString().isEmpty()) {
             choreHeroTimerTextView.setText("00:00:00:00");
-            choreHeroProgressIndicator.setProgress(0);
+            choreHeroProgressIndicator.setProgress(5);
+            applyVisualState(chore);
+            return;
+        }
+
+        if (!chore.isActive()) {
+            end = Instant.ofEpochMilli(chore.getEndAt());
+            now = Instant.now();
+            remaining = Duration.between(now, end);
+
+            choreHeroTimerTextView.setText("00:00:00:00");
+            choreHeroProgressIndicator.setProgress(5);
+
+            // Freeze progress at current value (do NOT recompute)
+            // Option A: leave progress as-is
+            // Option B: snap to 100%
+            // choreHeroProgressIndicator.setProgress(100);
+
             applyVisualState(chore);
             return;
         }
@@ -488,6 +538,11 @@ public class ChoreDetails extends BaseActivity {
             applyErrorColors();
         } else {
             applyPrimaryColors();
+        }
+
+        if (!currentChore.isActive()) {
+            choreHeroProgressIndicator.setIndicatorColor(MaterialColors.getColor(choreDetails_heroLayout, com.google.android.material.R.attr.colorOutline));
+
         }
     }
 
