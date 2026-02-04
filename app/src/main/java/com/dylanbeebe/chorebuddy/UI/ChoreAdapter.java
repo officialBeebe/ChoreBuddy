@@ -26,32 +26,23 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
     private static final long TICK_MS = 1000;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private final Runnable tickRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (chores != null && !chores.isEmpty()) {
-                notifyItemRangeChanged(0, chores.size(), "TICK");
-            }
-            handler.postDelayed(this, TICK_MS);
-        }
-    };
-
-    public void startTicker() {
-        handler.removeCallbacks(tickRunnable);
-        handler.post(tickRunnable);
-    }
-
-    public void stopTicker() {
-        handler.removeCallbacks(tickRunnable);
-    }
 
     private List<Chore> chores;
     private Context context;
     private LayoutInflater inflater;
+    private final OnChoreSwipeListener swipeListener;
 
-    public ChoreAdapter(Context context) {
-        inflater = LayoutInflater.from(context);
+    // Swipe listener interface
+    public interface OnChoreSwipeListener {
+        void onSwipeLeft(int position);
+
+        void onSwipeRight(int position);
+    }
+
+    public ChoreAdapter(@NonNull Context context, @NonNull OnChoreSwipeListener swipeListener) {
         this.context = context;
+        this.inflater = LayoutInflater.from(context);
+        this.swipeListener = swipeListener;
     }
 
     public class ChoreViewHolder extends RecyclerView.ViewHolder {
@@ -62,7 +53,8 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
 
         private ChoreViewHolder(@NonNull View itemView) {
             super(itemView);
-            choreListItem = itemView.findViewById(R.id.choreListItem);;
+            choreListItem = itemView.findViewById(R.id.choreListItem);
+            ;
             choreListItem_titleTextView = itemView.findViewById(R.id.choreListItem_titleTextView);
             choreListItem_remainingTimeTextView = itemView.findViewById(R.id.choreListItem_remainingTimeTextView);
             choreListItem_circularProgressIndicator = itemView.findViewById(R.id.choreListItem_circularProgressIndicator);
@@ -92,6 +84,20 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
 
     @Override
     public void onBindViewHolder(@NonNull ChoreViewHolder holder, int position) {
+        int surfaceColor = MaterialColors.getColor(
+                holder.choreListItem,
+                com.google.android.material.R.attr.colorSurface
+        );
+
+        int outlineColor = MaterialColors.getColor(
+                holder.choreListItem,
+                com.google.android.material.R.attr.colorOutline
+        );
+
+        holder.choreListItem.setCardBackgroundColor(surfaceColor);
+        holder.choreListItem_circularProgressIndicator.setIndicatorColor(outlineColor);
+
+
         Chore current = chores.get(position);
 
         holder.choreListItem_titleTextView.setText(current.getName());
@@ -116,26 +122,72 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
             );
 
             int colorOnErrorContainer = MaterialColors.getColor(
-                    holder.choreListItem_circularProgressIndicator,
+                    holder.choreListItem,
                     com.google.android.material.R.attr.colorOnErrorContainer
             );
 
             holder.choreListItem.setCardBackgroundColor(colorErrorContainer);
-            holder.choreListItem_circularProgressIndicator.setIndicatorColor(colorOnErrorContainer);
-
+            holder.choreListItem_circularProgressIndicator
+                    .setIndicatorColor(colorOnErrorContainer);
         } else {
             double ratio = (double) elapsed.toMillis() / (double) total.toMillis();
-
             ratio = Math.max(0.0, Math.min(1.0, ratio));
 
             progressPct = (int) Math.round(ratio * 100);
-            progressPct = Math.max(1, progressPct); // minimum 1
+            progressPct = Math.max(1, progressPct);
         }
 
-        holder.choreListItem_circularProgressIndicator.setProgress(progressPct);
+        boolean isOverdue = total.isZero() || total.isNegative();
 
-        holder.choreListItem_remainingTimeTextView
-                .setText(FTime.formatDuration(remaining.toMillis()));
+
+
+        if (isOverdue) {
+            int errorContainer = MaterialColors.getColor(
+                    holder.choreListItem,
+                    com.google.android.material.R.attr.colorErrorContainer
+            );
+
+            int onErrorContainer = MaterialColors.getColor(
+                    holder.choreListItem,
+                    com.google.android.material.R.attr.colorOnErrorContainer
+            );
+
+            holder.choreListItem.setCardBackgroundColor(errorContainer);
+            holder.choreListItem_circularProgressIndicator
+                    .setIndicatorColor(onErrorContainer);
+
+        } else if (current.isActive()) {
+            int primaryContainer = MaterialColors.getColor(
+                    holder.choreListItem,
+                    com.google.android.material.R.attr.colorPrimaryContainer
+            );
+
+            int onPrimaryContainer = MaterialColors.getColor(
+                    holder.choreListItem,
+                    com.google.android.material.R.attr.colorOnPrimaryContainer
+            );
+
+            holder.choreListItem.setCardBackgroundColor(primaryContainer);
+            holder.choreListItem_circularProgressIndicator
+                    .setIndicatorColor(onPrimaryContainer);
+
+        } else {
+            // inactive → surface (already reset, but explicit for clarity)
+            holder.choreListItem.setCardBackgroundColor(surfaceColor);
+            holder.choreListItem_circularProgressIndicator
+                    .setIndicatorColor(outlineColor);
+        }
+
+        if (current.isActive()) {
+            holder.choreListItem_circularProgressIndicator.setProgress(progressPct);
+            holder.choreListItem_remainingTimeTextView
+                    .setText(FTime.formatDuration(remaining.toMillis()));
+        } else {
+            holder.choreListItem_circularProgressIndicator.setProgress(5);
+            holder.choreListItem_remainingTimeTextView.setText("00:00:00:00");
+        }
+
+
     }
 
 
@@ -149,4 +201,48 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
         notifyDataSetChanged();
     }
 
+    public Chore getChoreAt(int position) {
+        return chores.get(position);
+    }
+
+    // Swipe entry points
+    public void onSwipeLeft(int position) {
+        //Chore current = chores.get(position);
+
+        // Prompt for chore deactivation, or deletion (make deactivation default)
+
+        swipeListener.onSwipeLeft(position);
+    }
+
+    public void onSwipeRight(int position) {
+        //Chore current = chores.get(position);
+
+        // Set chore.startAt = System.currentTimeMillis()
+
+        // If chore.isRepeat, set chore.endAt = chore.startAt + toMillis(chore.repeatDays)
+
+        // Else, chore.isActive = false
+
+        swipeListener.onSwipeRight(position);
+    }
+
+    // Ticker
+    private final Runnable tickRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (chores != null && !chores.isEmpty()) {
+                notifyItemRangeChanged(0, chores.size(), "TICK");
+            }
+            handler.postDelayed(this, TICK_MS);
+        }
+    };
+
+    public void startTicker() {
+        handler.removeCallbacks(tickRunnable);
+        handler.post(tickRunnable);
+    }
+
+    public void stopTicker() {
+        handler.removeCallbacks(tickRunnable);
+    }
 }

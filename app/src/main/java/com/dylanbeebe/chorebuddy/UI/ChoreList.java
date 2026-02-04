@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -12,16 +13,18 @@ import com.dylanbeebe.chorebuddy.BuildConfig;
 import com.dylanbeebe.chorebuddy.R;
 import com.dylanbeebe.chorebuddy.database.Repository;
 import com.dylanbeebe.chorebuddy.entities.Chore;
+import com.dylanbeebe.chorebuddy.entities.CompletedChore;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.List;
 
-public class ChoreList extends BaseActivity {
+public class ChoreList extends BaseActivity implements ChoreAdapter.OnChoreSwipeListener {
     private Repository repository;
     private ChoreAdapter choreAdapter;
-
 
 
     @Override
@@ -60,14 +63,31 @@ public class ChoreList extends BaseActivity {
         // Bind RecyclerView to chore list
         RecyclerView recyclerView = findViewById(R.id.choreDetails_recyclerView);
 
+        ChoreAdapter.OnChoreSwipeListener choreSwipeListener;
+
         // initialize the adapter
-        choreAdapter = new ChoreAdapter(this);
+        choreAdapter = new ChoreAdapter(this, this);
         recyclerView.setAdapter(choreAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        // Swipe helper
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ChoreSwipeCallback(choreAdapter));
+
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+
 
         // Subscribe to the data instead of asking for it when using async LiveData
         // asynchronous check for existing chores. you must observe the data, subscribe to it, learn from it, but never TAKE!
         repository.getAllChores().observe(this, chores -> {
+            if (chores != null) {
+                chores.sort(
+                        Comparator
+                                .comparing(Chore::isActive).reversed()
+                                .thenComparing(Chore::getEndAt)
+                );
+            }
+
             choreAdapter.setChores(chores);
             // TODO: Uncomment below before production AND set activity_chore_list's report FAB to disabled by default. This is for the debug chore inserts.
             // reportFab.setEnabled(!chores.isEmpty());
@@ -127,5 +147,52 @@ public class ChoreList extends BaseActivity {
     }
 
 
+    @Override
+    public void onSwipeLeft(int position) {
+        Chore chore = choreAdapter.getChoreAt(position);
+
+        if (!chore.isActive()) return;
+
+        chore.setActive(false);
+        repository.updateChore(chore);
+
+        choreAdapter.notifyItemChanged(position);
+
+
+    }
+
+
+    @Override
+    public void onSwipeRight(int position) {
+        Chore chore = choreAdapter.getChoreAt(position);
+        if (chore == null) return;
+
+        long now = System.currentTimeMillis();
+
+        // 1️⃣ Always record completion
+        repository.insertCompletedChore(
+                new CompletedChore(
+                        now,
+                        chore.getId()
+                )
+        );
+
+        // 2️⃣ Update chore state
+        if (chore.isRepeat()) {
+            long durationMillis =
+                    Duration.ofDays(chore.getRepeatDays()).toMillis();
+
+            chore.setStartAt(now);
+            chore.setEndAt(chore.getStartAt() + durationMillis);
+            chore.setActive(true);
+        } else {
+            chore.setEndAt(now);
+            chore.setActive(false);
+        }
+
+        repository.updateChore(chore);
+
+        choreAdapter.notifyItemChanged(position);
+    }
 
 }
