@@ -11,7 +11,7 @@ import com.dylanbeebe.chorebuddy.dao.CompletedChoreDAO;
 import com.dylanbeebe.chorebuddy.entities.Chore;
 import com.dylanbeebe.chorebuddy.entities.CompletedChore;
 
-@Database(entities = {Chore.class, CompletedChore.class}, version = 6, exportSchema = false)
+@Database(entities = {Chore.class, CompletedChore.class}, version = 1, exportSchema = false)
 public abstract class ChoreBuddyDatabaseBuilder extends RoomDatabase {
     public abstract ChoreDAO choreDAO();
     public abstract CompletedChoreDAO completedChoreDAO();
