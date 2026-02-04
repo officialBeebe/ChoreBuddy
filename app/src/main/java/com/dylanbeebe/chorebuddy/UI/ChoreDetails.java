@@ -97,7 +97,7 @@ public class ChoreDetails extends BaseActivity {
         choreIsRepeatSwitch = findViewById(R.id.choreDetails_choreIsRepeatSwitch);
         choreRepeatDaysLayout = findViewById(R.id.choreDetails_choreRepeatDaysLayout);
         choreRepeatDaysEditText = findViewById(R.id.choreDetails_choreRepeatDaysEditText);
-        choreIsAlertSwitch = findViewById(R.id.choreDetails_choreIsAlertSwitch);
+        //choreIsAlertSwitch = findViewById(R.id.choreDetails_choreIsAlertSwitch);
 
         // Bind FABs
         saveChoreFAB = findViewById(R.id.choreDetails_save);
@@ -153,7 +153,7 @@ public class ChoreDetails extends BaseActivity {
             choreEndAtEditText.setEnabled(isActive);
             choreIsRepeatSwitch.setEnabled(isActive);
             choreRepeatDaysEditText.setEnabled(isActive);
-            choreIsAlertSwitch.setEnabled(isActive);
+            //choreIsAlertSwitch.setEnabled(isActive);
 
             if (!isActive) {
                 choreRepeatDaysEditText.setEnabled(false);
@@ -215,7 +215,7 @@ public class ChoreDetails extends BaseActivity {
                 currentChore.setEndAt(endAt.toEpochMilli()); // 23:59:59:999 of the end date
 
                 currentChore.setRepeat(choreIsRepeatSwitch.isChecked());
-                currentChore.setAlert(choreIsAlertSwitch.isChecked());
+                //currentChore.setAlert(choreIsAlertSwitch.isChecked());
                 currentChore.setActive(choreIsActiveSwitch.isChecked());
 
                 if (currentChore.getId() == 0) {
@@ -302,8 +302,8 @@ public class ChoreDetails extends BaseActivity {
         //choreRepeatDaysEditText.setEnabled(chore.isActive()); // check active
 
         // isAlert
-        choreIsAlertSwitch.setChecked(chore.isAlert());
-        choreIsAlertSwitch.setEnabled(chore.isActive());
+        //choreIsAlertSwitch.setChecked(chore.isAlert());
+        //choreIsAlertSwitch.setEnabled(chore.isActive());
 
         choreIsActiveSwitch.setChecked(chore.isActive());
 
