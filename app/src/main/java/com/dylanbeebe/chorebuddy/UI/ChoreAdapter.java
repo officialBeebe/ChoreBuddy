@@ -99,6 +99,7 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
         Instant now = Instant.now();
         Instant start = Instant.ofEpochMilli(current.getStartAt());
         Instant end = Instant.ofEpochMilli(current.getEndAt());
+
         Duration total = Duration.between(start, end);
         Duration elapsed = Duration.between(start, now);
         Duration remaining = Duration.between(now, end);
@@ -126,8 +127,8 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
             double ratio = (double) elapsed.toMillis() / (double) total.toMillis();
 
             ratio = Math.max(0.0, Math.min(1.0, ratio));
-            progressPct = (int) Math.round(ratio * 100);
 
+            progressPct = (int) Math.round(ratio * 100);
             progressPct = Math.max(1, progressPct); // minimum 1
         }
 
