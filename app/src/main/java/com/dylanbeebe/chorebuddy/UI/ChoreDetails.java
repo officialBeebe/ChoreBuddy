@@ -8,7 +8,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.LiveData;
@@ -29,6 +31,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -111,6 +115,8 @@ public class ChoreDetails extends BaseActivity {
         currentChoreLiveData.observe(this, chore -> {
             if (chore == null) {
                 chore = new Chore();
+                chore.setCreatedAt(System.currentTimeMillis());
+                chore.setStartAt(chore.getCreatedAt());
             }
             currentChore = chore;
             hydrateUI(chore);
@@ -140,6 +146,7 @@ public class ChoreDetails extends BaseActivity {
 
         // Switches
         // Disable fields if !isActive, disable repeatDays field if !isRepeat
+        // TODO: Remove. Users can add inactive chores. Only gate isRepeat, repeatDays, and isAlert fields with the name and endAt date fields
         choreIsActiveSwitch.setOnCheckedChangeListener((button, isActive) -> {
             choreNameEditText.setEnabled(isActive);
             choreEndAtEditText.setEnabled(isActive);
@@ -174,6 +181,68 @@ public class ChoreDetails extends BaseActivity {
         });
 
 
+        saveChoreFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(ChoreDetails.this, "Save FAB tapped.", Toast.LENGTH_LONG).show();
+
+                if (choreNameEditText.getText().toString().isEmpty() || choreEndAtEditText.getText().toString().isEmpty()) {
+                    Toast.makeText(ChoreDetails.this, "Minimum chore needs name and due date.", Toast.LENGTH_LONG).show();
+
+                }
+
+
+                currentChore.setName(choreNameEditText.getText().toString().trim());
+                currentChore.setCreatedAt(System.currentTimeMillis());
+
+                ZoneId zone = ZoneId.systemDefault();
+
+                Instant startAt = LocalDate.now(zone)
+                        .atStartOfDay(zone)
+                        .toInstant();
+                currentChore.setStartAt(startAt.toEpochMilli()); // Midnight today
+
+                LocalDate endDate = LocalDate.parse(
+                        choreEndAtEditText.getText().toString().trim()
+                );
+                Instant endAt = endDate
+                        .plusDays(1)
+                        .atStartOfDay(zone)
+                        .toInstant()
+                        .minusMillis(1);
+
+                currentChore.setEndAt(endAt.toEpochMilli()); // 23:59:59:999 of the end date
+
+                currentChore.setRepeat(choreIsRepeatSwitch.isChecked());
+                currentChore.setAlert(choreIsAlertSwitch.isChecked());
+                currentChore.setActive(choreIsActiveSwitch.isChecked());
+
+                if (currentChore.getId() == 0) {
+                    repository.insertChore(currentChore);
+                    Toast.makeText(ChoreDetails.this, "Chore was successfully added.", Toast.LENGTH_LONG).show();
+
+                } else {
+                    repository.updateChore(currentChore);
+                    Toast.makeText(ChoreDetails.this, "Chore was successfully updated.", Toast.LENGTH_LONG).show();
+
+                }
+
+                finish();
+
+                //recalcHero(currentChore);
+                //updateHeroForEndDateChange();
+            }
+        });
+
+        deleteChoreFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(ChoreDetails.this, "Delete FAB tapped.", Toast.LENGTH_LONG).show();
+
+            }
+        });
+
+
     }
 
     private void hydrateUI(Chore chore) {
@@ -198,10 +267,17 @@ public class ChoreDetails extends BaseActivity {
         choreNameEditText.setEnabled(chore.isActive());
 
         // End Date
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()); // long millis to date format string
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        choreEndAtEditText.setText(dateFormat.format(new Date(chore.getEndAt())));
-        choreEndAtEditText.setEnabled(chore.isActive());
+        if (chore.getId() != 0 && chore.getEndAt() > 0) {
+            SimpleDateFormat dateFormat =
+                    new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            choreEndAtEditText.setText(
+                    dateFormat.format(new Date(chore.getEndAt()))
+            );
+        } else {
+            choreEndAtEditText.setText(""); // <-- empty for new chore
+        }
+
 
         // isRepeat
         choreIsRepeatSwitch.setChecked(chore.isRepeat());
@@ -210,7 +286,7 @@ public class ChoreDetails extends BaseActivity {
         // repeatDays
         choreRepeatDaysEditText.setText(String.valueOf(chore.getRepeatDays())); // int --> String
         choreRepeatDaysEditText.setEnabled(chore.isRepeat()); // now check isRepeat
-        choreRepeatDaysEditText.setEnabled(chore.isActive()); // check active
+        //choreRepeatDaysEditText.setEnabled(chore.isActive()); // check active
 
         // isAlert
         choreIsAlertSwitch.setChecked(chore.isAlert());
@@ -255,6 +331,8 @@ public class ChoreDetails extends BaseActivity {
         datePicker.addOnPositiveButtonClickListener(selection -> {
             long endAt = normalizeToEndOfDay(selection);
 
+            //long now = System.currentTimeMillis();
+            //currentChore.setStartAt(now);     // 🔴 RESET START
             currentChore.setEndAt(endAt);
 
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -262,6 +340,7 @@ public class ChoreDetails extends BaseActivity {
             choreEndAtEditText.setText(df.format(new Date(endAt)));
 
             updateHeroForEndDateChange();
+            recalcHero(currentChore);
         });
 
 
@@ -333,37 +412,44 @@ public class ChoreDetails extends BaseActivity {
     }
 
     private void recalcHero(Chore chore) {
+        Instant now;
+        Instant start;
+        Instant end;
+        Duration total;
+        Duration elapsed;
+        Duration remaining;
+
         // NEW chore only (unsaved)
-        if (chore.getId() == 0) {
+        if (chore.getId() == 0 && choreEndAtEditText.getText().toString().isEmpty()) {
             choreHeroTimerTextView.setText("00:00:00:00");
             choreHeroProgressIndicator.setProgress(0);
             applyVisualState(chore);
             return;
         }
 
-        Instant now = Instant.now();
-        Instant start = Instant.ofEpochMilli(chore.getStartAt());
-        Instant end = Instant.ofEpochMilli(chore.getEndAt());
+        // ----- PROGRESS -----
+        now = Instant.now();
+        start = Instant.ofEpochMilli(chore.getStartAt());
+        end = Instant.ofEpochMilli(chore.getEndAt());
 
-        Duration total = Duration.between(start, end);
-        Duration elapsed = Duration.between(start, now);
-        Duration remaining = Duration.between(now, end);
+        total = Duration.between(start, end);
+        elapsed = Duration.between(start, now);
+        remaining = Duration.between(now, end);
+
+        int progressPct;
 
         // ----- TIMER (allow negative) -----
         choreHeroTimerTextView.setText(
                 FTime.formatDuration(remaining.toMillis())
         );
 
-        // ----- PROGRESS -----
-        int progressPct;
-
         if (total.isZero() || total.isNegative()) {
             progressPct = 100;
-        } else if (elapsed.isNegative()) {
-            progressPct = 1; // not started yet
+
         } else {
             double ratio = (double) elapsed.toMillis() / total.toMillis();
-            ratio = Math.min(1.0, Math.max(0.0, ratio));
+            ratio = Math.max(0.0, Math.min(1.0, ratio));
+
             progressPct = (int) Math.round(ratio * 100);
             progressPct = Math.max(1, progressPct);
         }
@@ -402,7 +488,7 @@ public class ChoreDetails extends BaseActivity {
 
 
         //choreDetailsLayout.setBackgroundColor(errorContainer);
-        choreDetails_heroLayout.setBackgroundColor(errorContainer);
+        //choreDetails_heroLayout.setBackgroundColor(errorContainer);
 
         choreHeroProgressIndicator.setIndicatorColor(onErrorContainer);
 
@@ -420,10 +506,8 @@ public class ChoreDetails extends BaseActivity {
 
 
         choreDetailsLayout.setBackgroundColor(surface);
-        choreDetails_heroLayout.setBackgroundColor(primaryContainer);
+        //choreDetails_heroLayout.setBackgroundColor(primaryContainer);
         choreHeroProgressIndicator.setIndicatorColor(primary);
-
-
 
 
     }
