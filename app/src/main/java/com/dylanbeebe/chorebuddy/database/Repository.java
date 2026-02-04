@@ -66,6 +66,10 @@ public class Repository {
         return completedChoreDAO.getCompletedChoreById(completedChoreId);
     }
 
+    public List<CompletedChore> getCompletedChoresSync(long choreId) {
+        return completedChoreDAO.getCompletedChoresSync(choreId);
+    }
+
     public void insertCompletedChore(CompletedChore completedChore) {
         executor.execute(() -> completedChoreDAO.insert(completedChore));
     }

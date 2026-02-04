@@ -38,4 +38,7 @@ public interface CompletedChoreDAO {
 
     @Query("SELECT MAX(completedAt) FROM completed_chores " + "WHERE associatedChoreId = :associatedChoreId")
     LiveData<Long> getCompletedChoreLastCompletedAt(long associatedChoreId);
+
+    @Query("SELECT * FROM completed_chores WHERE associatedChoreId = :associatedChoreId ORDER BY completedAt DESC")
+    List<CompletedChore> getCompletedChoresSync(long associatedChoreId);
 }

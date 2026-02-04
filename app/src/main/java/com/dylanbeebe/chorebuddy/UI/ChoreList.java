@@ -1,12 +1,18 @@
 package com.dylanbeebe.chorebuddy.UI;
 
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.pdf.PdfDocument;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,9 +27,14 @@ import com.google.android.material.search.SearchView;
 import com.google.android.material.search.SearchBar;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 
@@ -57,11 +68,14 @@ public class ChoreList extends BaseActivity implements ChoreAdapter.OnChoreSwipe
         reportChoresFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Debug inserts
+                // Debug data
                 // insertSampleChores(repository);
 
                 // Report chores
+
                 Toast.makeText(ChoreList.this, "Report FAB tapped.", Toast.LENGTH_LONG).show();
+
+                report();
             }
         });
 
@@ -116,11 +130,114 @@ public class ChoreList extends BaseActivity implements ChoreAdapter.OnChoreSwipe
     }
 
     void report() {
-        // start share intent with generated pdf
+        // 1. Get the visible list from adapter immediately
+        List<Chore> visibleChores = choreAdapter.getVisibleChores();
 
-        // get sorted current and completed chores from repository and generate a tabular csv report then convert to pdf and return
+        if (visibleChores == null || visibleChores.isEmpty()) {
+            Toast.makeText(this, "Nothing to print!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        // 2. Switch to background thread for DB and File I/O
+        // (Assuming your executor in Repository is accessible)
+        new Thread(() -> {
+            PdfDocument document = new PdfDocument();
+            // A4 size: 595 x 842 points
+            PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(595, 842, 1).create();
+            PdfDocument.Page page = document.startPage(pageInfo);
+            android.graphics.Canvas canvas = page.getCanvas();
+            Paint paint = new Paint();
 
+            int x = 50;
+            int y = 60;
+
+            // Title
+            paint.setTextSize(24);
+            paint.setFakeBoldText(true);
+            canvas.drawText("ChoreBuddy Report", x, y, paint);
+
+            y += 25;
+            paint.setTextSize(10);
+            paint.setFakeBoldText(false);
+            paint.setColor(Color.GRAY);
+            canvas.drawText("Generated on: " + LocalDate.now().toString(), x, y, paint);
+
+            y += 40;
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm")
+                    .withZone(ZoneId.systemDefault());
+
+            for (Chore chore : visibleChores) {
+                // Basic Page Overflow Check
+                if (y > 780) break;
+
+                // Draw Chore Name
+                paint.setColor(Color.BLACK);
+                paint.setTextSize(14);
+                paint.setFakeBoldText(true);
+                canvas.drawText(chore.getName(), x, y, paint);
+
+                // Draw Status tag
+                paint.setTextSize(10);
+                String status = chore.isActive() ? "ACTIVE" : "INACTIVE";
+                canvas.drawText(status, 480, y, paint);
+
+                y += 20;
+
+                // Fetch completions for this chore using your new sync method
+                List<CompletedChore> history = repository.getCompletedChoresSync(chore.getId());
+
+                paint.setFakeBoldText(false);
+                paint.setColor(Color.DKGRAY);
+
+                if (history != null && !history.isEmpty()) {
+                    canvas.drawText("Completion History:", x + 20, y, paint);
+                    y += 15;
+
+                    // Show up to 3 most recent completions
+                    int limit = Math.min(history.size(), 3);
+                    for (int i = 0; i < limit; i++) {
+                        String date = timeFormatter.format(Instant.ofEpochMilli(history.get(i).getCompletedAt()));
+                        canvas.drawText("• " + date, x + 35, y, paint);
+                        y += 15;
+                    }
+                } else {
+                    canvas.drawText("No history recorded.", x + 20, y, paint);
+                    y += 15;
+                }
+
+                y += 10;
+                paint.setAlpha(40); // Light divider
+                canvas.drawLine(x, y, 545, y, paint);
+                paint.setAlpha(255);
+                y += 30;
+            }
+
+            document.finishPage(page);
+
+            // 3. Save as ChoreBuddy_YYYY-MM-DD.pdf
+            String fileName = "ChoreBuddy_" + LocalDate.now().toString() + ".pdf";
+            File file = new File(getExternalCacheDir(), fileName);
+
+            try {
+                document.writeTo(new FileOutputStream(file));
+                document.close();
+
+                // 4. Share on UI Thread
+                runOnUiThread(() -> sharePdf(file));
+            } catch (Exception e) {
+                document.close();
+                runOnUiThread(() -> Toast.makeText(this, "Failed to create PDF", Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
+
+    private void sharePdf(File file) {
+        Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", file);
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("application/pdf");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(intent, "Share Report"));
     }
 
     private void insertSampleChores(Repository repository) {

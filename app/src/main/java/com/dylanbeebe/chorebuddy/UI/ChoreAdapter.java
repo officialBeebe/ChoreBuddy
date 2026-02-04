@@ -215,6 +215,10 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
         return visibleChores.get(position);
     }
 
+    public List<Chore> getVisibleChores() {
+        return visibleChores;
+    }
+
     @Override
     public int getItemCount() {
         return visibleChores.size();
