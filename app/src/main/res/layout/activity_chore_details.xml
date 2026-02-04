@@ -206,7 +206,8 @@
                     android:inputType="none"
                     android:longClickable="false"
                     android:gravity="center"
-                    android:text="0" />
+                    android:text="0"
+                    android:enabled="false"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Alert toggle -->
@@ -259,7 +260,7 @@
             app:srcCompat="@drawable/delete"
             app:useCompatPadding="false"
             android:outlineProvider="none"
-            app:backgroundTint="?attr/colorSurface" />
+            app:backgroundTint="?attr/colorPrimaryContainer" />
 
         <!-- Spacer -->
         <View

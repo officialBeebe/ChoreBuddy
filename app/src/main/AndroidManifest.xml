@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ChoreBuddy">
+        android:theme="@style/Base.Theme.ChoreBuddy">
         <activity android:name=".UI.ChoreDetails"
             android:exported="false"
             android:label="Chore Details"
