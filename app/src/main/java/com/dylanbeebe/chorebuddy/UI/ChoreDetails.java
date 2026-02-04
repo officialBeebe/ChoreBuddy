@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.LiveData;
 
@@ -237,9 +238,21 @@ public class ChoreDetails extends BaseActivity {
         deleteChoreFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(ChoreDetails.this, "Delete FAB tapped.", Toast.LENGTH_LONG).show();
+
+                if (currentChore.getId() == 0) {
+                    Toast.makeText(ChoreDetails.this, "Save chore first.", Toast.LENGTH_LONG).show();
+                    return;
+
+                }
+
+                new AlertDialog.Builder(ChoreDetails.this).setTitle("Delete Chore").setMessage("Are you sure you want to delete this chore?").setPositiveButton("Delete", (dialog, which) -> {
+                    repository.deleteChore(new Chore(currentChore.getId()));
+                    Toast.makeText(ChoreDetails.this, currentChore.getName() + " was deleted", Toast.LENGTH_LONG).show();
+                    finish();
+                }).setNegativeButton("Cancel", null).show();
 
             }
+
         });
 
 

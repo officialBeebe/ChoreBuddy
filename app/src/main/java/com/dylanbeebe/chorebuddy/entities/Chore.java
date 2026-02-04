@@ -39,6 +39,10 @@ public class Chore {
     public Chore() {
     }
 
+    public Chore(long id) {
+        this.id = id;
+    }
+
     /* ---- Accessors ---- */
 
     public long getId() {
