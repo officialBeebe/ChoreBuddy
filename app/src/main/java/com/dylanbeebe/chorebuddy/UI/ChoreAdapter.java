@@ -20,6 +20,7 @@ import com.google.android.material.textview.MaterialTextView;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHolder> {
@@ -27,7 +28,9 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
-    private List<Chore> chores;
+    private final List<Chore> chores = new ArrayList<>();
+    private final List<Chore> visibleChores = new ArrayList<>();
+
     private Context context;
     private LayoutInflater inflater;
     private final OnChoreSwipeListener swipeListener;
@@ -64,7 +67,9 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
                     int position = getBindingAdapterPosition();
                     if (position == RecyclerView.NO_POSITION) return;
 
-                    Chore current = chores.get(position); // not final?
+                    //Chore current = chores.get(position); // not final?
+                    Chore current = visibleChores.get(position);
+
 
 
                     Intent intent = new Intent(context, ChoreDetails.class);
@@ -98,7 +103,9 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
         holder.choreListItem_circularProgressIndicator.setIndicatorColor(outlineColor);
 
 
-        Chore current = chores.get(position);
+        //Chore current = chores.get(position);
+        Chore current = visibleChores.get(position);
+
 
         holder.choreListItem_titleTextView.setText(current.getName());
 
@@ -191,19 +198,47 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
     }
 
 
-    @Override
-    public int getItemCount() {
-        return chores == null ? 0 : chores.size();
-    }
+    public void setChores(List<Chore> newChores) {
+        this.chores.clear();
+        visibleChores.clear();
 
-    public void setChores(List<Chore> chores) {
-        this.chores = chores;
+        if (newChores != null) {
+            this.chores.addAll(newChores);
+            visibleChores.addAll(newChores);
+        }
+
         notifyDataSetChanged();
     }
 
+
     public Chore getChoreAt(int position) {
-        return chores.get(position);
+        return visibleChores.get(position);
     }
+
+    @Override
+    public int getItemCount() {
+        return visibleChores.size();
+    }
+
+    // for search
+    public void filter(String query) {
+        visibleChores.clear();
+
+        if (query == null || query.trim().isEmpty()) {
+            visibleChores.addAll(chores);
+        } else {
+            String lowerQuery = query.toLowerCase();
+
+            for (Chore chore : chores) {
+                if (chore.getName().toLowerCase().contains(lowerQuery)) {
+                    visibleChores.add(chore);
+                }
+            }
+        }
+
+        notifyDataSetChanged();
+    }
+
 
     // Swipe entry points
     public void onSwipeLeft(int position) {
@@ -230,9 +265,13 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ChoreViewHol
     private final Runnable tickRunnable = new Runnable() {
         @Override
         public void run() {
-            if (chores != null && !chores.isEmpty()) {
-                notifyItemRangeChanged(0, chores.size(), "TICK");
+//            if (chores != null && !chores.isEmpty()) {
+//                notifyItemRangeChanged(0, chores.size(), "TICK");
+//            }
+            if (!visibleChores.isEmpty()) {
+                notifyItemRangeChanged(0, visibleChores.size(), "TICK");
             }
+
             handler.postDelayed(this, TICK_MS);
         }
     };

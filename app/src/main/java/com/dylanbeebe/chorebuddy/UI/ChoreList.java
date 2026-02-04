@@ -2,6 +2,8 @@ package com.dylanbeebe.chorebuddy.UI;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Toast;
 
@@ -15,6 +17,9 @@ import com.dylanbeebe.chorebuddy.database.Repository;
 import com.dylanbeebe.chorebuddy.entities.Chore;
 import com.dylanbeebe.chorebuddy.entities.CompletedChore;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.search.SearchView;
+import com.google.android.material.search.SearchBar;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -59,6 +64,21 @@ public class ChoreList extends BaseActivity implements ChoreAdapter.OnChoreSwipe
                 Toast.makeText(ChoreList.this, "Report FAB tapped.", Toast.LENGTH_LONG).show();
             }
         });
+
+        TextInputEditText searchInput =
+                findViewById(R.id.choreList_searchInput);
+
+        searchInput.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                choreAdapter.filter(s.toString());
+            }
+
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
 
         // Bind RecyclerView to chore list
         RecyclerView recyclerView = findViewById(R.id.choreDetails_recyclerView);
