@@ -1,7 +1,6 @@
 package com.dylanbeebe.chorebuddy.UI;
 
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.pdf.PdfDocument;
@@ -17,19 +16,15 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.dylanbeebe.chorebuddy.BuildConfig;
 import com.dylanbeebe.chorebuddy.R;
 import com.dylanbeebe.chorebuddy.database.Repository;
 import com.dylanbeebe.chorebuddy.entities.Chore;
 import com.dylanbeebe.chorebuddy.entities.CompletedChore;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.search.SearchView;
-import com.google.android.material.search.SearchBar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -42,41 +37,27 @@ public class ChoreList extends BaseActivity implements ChoreAdapter.OnChoreSwipe
     private Repository repository;
     private ChoreAdapter choreAdapter;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-
         setEdgeToEdgeContentView(R.layout.activity_chore_list);
-
         repository = new Repository(getApplication());
 
         // Add Chore FAB
         FloatingActionButton addChoreFAB = findViewById(R.id.choreList_add);
-        addChoreFAB.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ChoreList.this, ChoreDetails.class);
-                startActivity(intent);
-            }
-
+        addChoreFAB.setOnClickListener(view -> {
+            Intent intent = new Intent(ChoreList.this, ChoreDetails.class);
+            startActivity(intent);
         });
 
+        // Report visible Chores FAB
         FloatingActionButton reportChoresFAB = findViewById(R.id.choreList_report);
-        reportChoresFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Debug data
-                // insertSampleChores(repository);
+        reportChoresFAB.setOnClickListener(v -> {
+            // Debug data
+            //Toast.makeText(ChoreList.this, "Report FAB tapped.", Toast.LENGTH_LONG).show();
+            // insertSampleChores(repository);
 
-                // Report chores
-
-                Toast.makeText(ChoreList.this, "Report FAB tapped.", Toast.LENGTH_LONG).show();
-
-                report();
-            }
+            report();
         });
 
         TextInputEditText searchInput =
@@ -104,12 +85,10 @@ public class ChoreList extends BaseActivity implements ChoreAdapter.OnChoreSwipe
         recyclerView.setAdapter(choreAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-
         // Swipe helper
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ChoreSwipeCallback(choreAdapter));
 
         itemTouchHelper.attachToRecyclerView(recyclerView);
-
 
         // Subscribe to the data instead of asking for it when using async LiveData
         // asynchronous check for existing chores. you must observe the data, subscribe to it, learn from it, but never TAKE!
@@ -126,7 +105,6 @@ public class ChoreList extends BaseActivity implements ChoreAdapter.OnChoreSwipe
             // TODO: Uncomment below before production AND set activity_chore_list's report FAB to disabled by default. This is for the debug chore inserts.
             // reportFab.setEnabled(!chores.isEmpty());
         });
-
     }
 
     void report() {
@@ -283,7 +261,6 @@ public class ChoreList extends BaseActivity implements ChoreAdapter.OnChoreSwipe
         choreAdapter.stopTicker();
     }
 
-
     @Override
     public void onSwipeLeft(int position) {
         Chore chore = choreAdapter.getChoreAt(position);
@@ -297,7 +274,6 @@ public class ChoreList extends BaseActivity implements ChoreAdapter.OnChoreSwipe
 
 
     }
-
 
     @Override
     public void onSwipeRight(int position) {
@@ -328,7 +304,6 @@ public class ChoreList extends BaseActivity implements ChoreAdapter.OnChoreSwipe
         }
 
         repository.updateChore(chore);
-
         choreAdapter.notifyItemChanged(position);
     }
 

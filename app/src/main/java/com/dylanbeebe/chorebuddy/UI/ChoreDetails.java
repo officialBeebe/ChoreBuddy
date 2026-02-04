@@ -1,8 +1,6 @@
 package com.dylanbeebe.chorebuddy.UI;
 
-import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -34,7 +32,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -78,7 +75,6 @@ public class ChoreDetails extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setEdgeToEdgeContentView(R.layout.activity_chore_details);
 
         // Layout
@@ -145,7 +141,6 @@ public class ChoreDetails extends BaseActivity {
             choreRepeatDaysEditText.setText(String.valueOf(current + 1));
         });
 
-
         // Switches
         // Disable fields if !isActive, disable repeatDays field if !isRepeat
         // TODO: Remove. Users can add inactive chores. Only gate isRepeat, repeatDays, and isAlert fields with the name and endAt date fields
@@ -187,12 +182,10 @@ public class ChoreDetails extends BaseActivity {
             @Override
             public void onClick(View v) {
                 //Toast.makeText(ChoreDetails.this, "Save FAB tapped.", Toast.LENGTH_LONG).show();
-
                 if (choreNameEditText.getText().toString().isEmpty() || choreEndAtEditText.getText().toString().isEmpty()) {
                     Toast.makeText(ChoreDetails.this, "Minimum chore needs name and due date.", Toast.LENGTH_LONG).show();
                     return;
                 }
-
 
                 currentChore.setName(choreNameEditText.getText().toString().trim());
                 currentChore.setCreatedAt(System.currentTimeMillis());
@@ -278,10 +271,6 @@ public class ChoreDetails extends BaseActivity {
     }
 
     private void hydrateUI(Chore chore) {
-        if (chore.getId() == 0) {
-
-        }
-
         // Hero
         choreHeroNameTextView.setText(chore.getName());
 
@@ -322,8 +311,6 @@ public class ChoreDetails extends BaseActivity {
             );
         }
 
-
-
         // isRepeat
         choreIsRepeatSwitch.setChecked(chore.isRepeat());
         choreIsRepeatSwitch.setEnabled(chore.isActive());
@@ -354,7 +341,6 @@ public class ChoreDetails extends BaseActivity {
 
     private void showChoreEndDatePicker() {
         MaterialDatePicker.Builder<Long> choreEndAtBuilder = MaterialDatePicker.Builder.datePicker();
-
         choreEndAtBuilder.setTitleText("Select Chore End Date");
 
         String dateText = choreEndAtEditText.getText().toString();
@@ -373,7 +359,6 @@ public class ChoreDetails extends BaseActivity {
         }
 
         MaterialDatePicker<Long> datePicker = choreEndAtBuilder.build();
-
         datePicker.addOnPositiveButtonClickListener(selection -> {
             long endAt = normalizeToEndOfDay(selection);
 
@@ -389,9 +374,7 @@ public class ChoreDetails extends BaseActivity {
             recalcHero(currentChore);
         });
 
-
         datePicker.addOnNegativeButtonClickListener(dialog -> choreEndAtEditText.clearFocus());
-
         datePicker.addOnDismissListener(dialog -> choreEndAtEditText.clearFocus());
 
         datePicker.show(getSupportFragmentManager(), "CHORE_END_AT_PICKER");
@@ -554,12 +537,10 @@ public class ChoreDetails extends BaseActivity {
                 choreDetailsLayout, com.google.android.material.R.attr.colorOnErrorContainer
         );
 
-
         //choreDetailsLayout.setBackgroundColor(errorContainer);
         //choreDetails_heroLayout.setBackgroundColor(errorContainer);
 
         choreHeroProgressIndicator.setIndicatorColor(onErrorContainer);
-
 
     }
 
@@ -572,13 +553,10 @@ public class ChoreDetails extends BaseActivity {
                 choreDetailsLayout, androidx.appcompat.R.attr.colorPrimary
         );
 
-
         choreDetailsLayout.setBackgroundColor(surface);
         //choreDetails_heroLayout.setBackgroundColor(primaryContainer);
         choreHeroProgressIndicator.setIndicatorColor(primary);
 
-
     }
-
 
 }
