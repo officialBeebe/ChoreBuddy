@@ -32,4 +32,9 @@ public interface ChoreDAO {
 
     @Query("SELECT count(*) FROM chores")
     int getChoreCount();
+
+    // Synchronous return entity for DAO tests
+    @Query("SELECT * FROM chores WHERE id = :id")
+    Chore getChoreByIdSync(long id);
+
 }

@@ -26,4 +26,8 @@ public abstract class ChoreBuddyDatabaseBuilder extends RoomDatabase {
         }
         return INSTANCE;
     }
+
+    public ChoreDAO getChoreDAO() {
+        return choreDAO();
+    }
 }
