@@ -17,76 +17,71 @@ import com.dylanbeebe.chorebuddy.entities.Chore;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneId;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 @RunWith(AndroidJUnit4.class)
 public class SimpleEntityReadWriteTest {
 
     private static final String TAG = "SimpleEntityRWTest";
 
-    @Rule
-    public TestName testName = new TestName();
-
     private ChoreDAO choreDAO;
     private ChoreBuddyDatabaseBuilder db;
 
     @Before
     public void createDb() {
-        Log.i(TAG, "START " + testName.getMethodName());
+        Log.i(TAG, "START writeChoreAndReadInChore");
 
         Context context = ApplicationProvider.getApplicationContext();
-
-        // allowMainThreadQueries() keeps the test simple/deterministic for DAO calls
-        db = Room.inMemoryDatabaseBuilder(context, ChoreBuddyDatabaseBuilder.class)
-                .allowMainThreadQueries()
-                .build();
-
+        db = Room.inMemoryDatabaseBuilder(context, ChoreBuddyDatabaseBuilder.class).build();
         choreDAO = db.getChoreDAO();
     }
 
     @After
     public void closeDb() throws IOException {
         if (db != null) db.close();
-        Log.i(TAG, "END " + testName.getMethodName());
+        Log.i(TAG, "END writeChoreAndReadInChore");
     }
 
     @Test
     public void writeChoreAndReadInChore() {
-        // Arrange (expected values)
+        // Arrange
         final String expectedName = "Wash the dog";
         final long expectedEndAt = System.currentTimeMillis() + (24L * 60L * 60L * 1000L);
 
-        // Arrange (entity)
         Chore chore = new Chore();
         chore.setName(expectedName);
         chore.setEndAt(expectedEndAt);
 
-        // Act (insert)
-        long insertId = choreDAO.insert(chore);
-        Log.i(TAG, "Inserted chore. id=" + insertId
-                + " name=\"" + expectedName + "\""
-                + " endAt=" + expectedEndAt + " (" + fmtMillis(expectedEndAt) + ")");
+        Log.i(TAG, "Arrange: expectedName=\"" + expectedName + "\"");
+        Log.i(TAG, "Arrange: expectedEndAt=" + expectedEndAt + " (" + fmtMillis(expectedEndAt) + ")");
 
-        // Assert (insert id)
+        // Act: insert
+        long insertId = choreDAO.insert(chore);
+        Log.i(TAG, "Insert: returnedId=" + insertId);
+
+        // Assert: insert ID
         assertTrue("Insert should return id > 0, but was " + insertId, insertId > 0);
 
-        // Act (read)
+        // Act: read
         Chore read = choreDAO.getChoreByIdSync(insertId);
-        assertNotNull("DAO returned null for id=" + insertId, read);
+        assertNotNull("Read returned null for id=" + insertId, read);
 
-        Log.i(TAG, "Read chore. id=" + insertId
-                + " name=\"" + read.getName() + "\""
-                + " endAt=" + read.getEndAt() + " (" + fmtMillis(read.getEndAt()) + ")");
+        Log.i(TAG, "Read: name=\"" + read.getName() + "\"");
+        Log.i(TAG, "Read: endAt=" + read.getEndAt() + " (" + fmtMillis(read.getEndAt()) + ")");
 
-        // Assert (field equality)
-        assertEquals("Chore.name mismatch after persistence", expectedName, read.getName());
+        // Assert: persisted values
+        assertEquals(
+                "Chore.name mismatch after persistence. expected=\"" + expectedName + "\" actual=\"" + read.getName() + "\"",
+                expectedName,
+                read.getName()
+        );
+
         assertEquals(
                 "Chore.endAt mismatch after persistence. expected="
                         + expectedEndAt + " (" + fmtMillis(expectedEndAt) + ")"
@@ -94,10 +89,34 @@ public class SimpleEntityReadWriteTest {
                 expectedEndAt,
                 read.getEndAt()
         );
+
+        // ------------------------------------------------------------
+        // OPTIONAL FAILURE ASSERTIONS (left here commented on purpose)
+        // Uncomment ONE of the following to intentionally generate a failing
+        // test run for screenshot/output evidence, then re-comment.
+        // ------------------------------------------------------------
+
+        // 1) Name typo (intentional failure)
+//         assertEquals(
+//                 "Intentional failure (name typo). expected=\"Wash the dogg\" actual=\"" + read.getName() + "\"",
+//                 "Wash the dogg",
+//                 read.getName()
+//         );
+
+        // 2) Wrong endAt (intentional failure)
+//         long wrongEndAt = System.currentTimeMillis();
+//         assertEquals(
+//                 "Intentional failure (endAt mismatch). expected="
+//                         + wrongEndAt + " (" + fmtMillis(wrongEndAt) + ")"
+//                         + " actual=" + read.getEndAt() + " (" + fmtMillis(read.getEndAt()) + ")",
+//                 wrongEndAt,
+//                 read.getEndAt()
+//         );
     }
 
     private static String fmtMillis(long ms) {
-        return Instant.ofEpochMilli(ms).atZone(ZoneId.systemDefault()).toString();
+        // Human-readable timestamp for logs/assertion messages
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z", Locale.US).format(new Date(ms));
     }
 }
 
