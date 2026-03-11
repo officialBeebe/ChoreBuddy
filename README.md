@@ -1,3 +1,10 @@
+# Abstract
+
+Chore Buddy is an Android application for tracking household chores, including due dates, optional
+repetition, and completion history. Users can set timers and generate PDF reports of past progress. Data
+is stored locally, the app does not require network connectivity, and it requests only the permissions
+needed to function.
+
 # Chore Buddy
 
 Household chore timer application exploring two contrasting architectures:
@@ -47,6 +54,7 @@ Backend functionality is intentionally scoped for UI exploration and architectur
 The Android application deliberately diverges from the web MVP and is designed as a privacy-first, offline-capable mobile app.
 
 ### Current characteristics
+
 - Java with core Android SDK
 - Local persistence using Room
 - Offline operation by default; no required cloud services
@@ -54,11 +62,13 @@ The Android application deliberately diverges from the web MVP and is designed a
 - Material Design layouts with minimal visual and cognitive overhead
 
 ### Implemented functionality
+
 - Household chore timers with completion tracking
 - Local persistence of timer and history data
 - User-configured alerts and reminders
 
 ### Planned additions
+
 - Export of completion history as CSV and PDF-style reports
 - Final save and reporting workflows for the MVP
 
@@ -67,12 +77,15 @@ This approach prioritizes data ownership, transparency, and user control without
 ## Build References (Web MVP)
 
 ### REST API → Lambda → DynamoDB
+
 https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html
 
 ### React UI
+
 Created using Vite with a React + TypeScript template.
 
 ### Deployment
+
 React UI deployed via AWS Amplify.
 
 ## Network Diagram (Web MVP)

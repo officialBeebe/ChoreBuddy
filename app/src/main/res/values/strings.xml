@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Chore Buddy</string>
+
+    <string name="chore_name_label">Chore name</string>
+    <string name="chore_name_support">What is the chore\'s name?</string>
+
+    <string name="chore_due_date_hint">Select due date</string>
+    <string name="chore_due_date_support">What is the chore\'s due date?</string>
+
+    <string name="chore_active_label">Enable Timer?</string>
+
+    <string name="chore_repeat_label">Enable repeat?</string>
+
+    <string name="chore_repeat_frequency_label">Repeat frequency</string>
+    <string name="chore_repeat_frequency_support">How often does this chore repeat?</string>
+
+    <string name="chore_alert_label">Enable alerts?</string>
+
+
+
+    <string name="decrement">Decrement</string>
+    <string name="increment">Increment</string>
+
+    <string name="open_date_picker">Open date picker</string>
+
+    <string name="search_bar_hint">Search chores</string>
+
+
+
+
+</resources>

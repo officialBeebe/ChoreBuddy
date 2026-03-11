@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    android:id="@+id/choreListItem"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="48dp"
+    android:layout_marginVertical="12dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="?attr/colorPrimaryContainer">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Progress Ring -->
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/choreListItem_circularProgressIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="false"
+
+            app:indicatorSize="50dp"
+            app:trackThickness="5dp"
+            android:progress="15"
+            app:trackColor="?attr/colorSurfaceDim"
+            app:indicatorColor="?attr/colorPrimary"
+
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Chore Title -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/choreListItem_titleTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="Wash the dog"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textColor="?attr/colorOnSecondaryContainer"
+            app:layout_constraintStart_toEndOf="@id/choreListItem_circularProgressIndicator"
+            app:layout_constraintTop_toTopOf="@id/choreListItem_circularProgressIndicator"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Timestamp -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/choreListItem_remainingTimeTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="11:11:54:20"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorOnSecondaryContainer"
+            app:layout_constraintStart_toStartOf="@id/choreListItem_titleTextView"
+            app:layout_constraintTop_toBottomOf="@id/choreListItem_titleTextView"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
