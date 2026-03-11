@@ -1,41 +1,36 @@
 # Chore Buddy
 
-Chore Buddy is an Android application for tracking household chores, including due dates, optional
-repetition, and completion history. Users can set timers and generate PDF reports of past progress. Data
-is stored locally, the app does not require network connectivity, and it requests only the permissions
-needed to function.
+Chore Buddy is a household chore tracking application exploring two contrasting architectures:
 
-Household chore timer application exploring two contrasting architectures:
+- A cloud-backed web MVP (Vite + React + DynamoDB)
+- A privacy-first, offline-capable Android MVP
 
-- a cloud-backed web MVP
-- a privacy-first, offline-capable Android MVP
+Users can set timers, track due dates, configure optional repetition, and export completion history as PDF reports.
 
 ## Project Status
 
-Android MVP code will be added once the core feature set stabilizes. A fully functioning Android MVP is provided with the core feature set.
-
-Additionally, since the project was initially conceived of a AWS-backed web app, the legacy Vite build is provided along inside of `chore-app-ui/`.
+A fully functioning Android MVP is provided with the core feature set. Since the project was initially conceived as an AWS-backed web app, the legacy Vite build is also provided inside `chore-app-ui/`.
 
 ## Project Scope
 
 This repository supports a B.S. Software Engineering capstone project.
 
-### 1. Web MVP (current contents)
+### 1. Web MVP
 
 - Validate design and user workflow
 - (Bonus) Serve as an AWS reference architecture
 
 ### 2. Android Application
 
-- Demonstrate fully functional Android MVP
+- Demonstrate a fully functional Android MVP
 - Offline only; no external services or telemetry
-- Secure data access utilizing Room Sqlite3 API
+- Local persistence using Room / SQLite
 
-Both implementations intentionally explore architectural--if not philisophical--tradeoffs within the same problem domain. Personal assistants can do their jobs just fine without imposing privacy and security tradeoffs.
+Both implementations intentionally explore architectural—if not philosophical—tradeoffs within the same problem domain. Personal assistants can do their jobs just fine without imposing privacy and security tradeoffs on the user.
 
 ## Web MVP Architecture
 
-The existing web MVP demonstrates a cloud architecture aligned with AWS well-architected concepts:
+The web MVP demonstrates a cloud architecture aligned with AWS well-architected concepts:
 
 - React SPA
 - AWS Amplify
@@ -45,24 +40,24 @@ The existing web MVP demonstrates a cloud architecture aligned with AWS well-arc
 
 Backend functionality is intentionally scoped for UI exploration and architectural clarity rather than full production hardening.
 
-## Android Application Direction
+## Android Application
 
-The Android application deliberately diverges from the web MVP and is designed as an offline, privacy-first Android app.
+The Android application deliberately diverges from the web MVP and is designed as an offline, privacy-first app.
 
-### Current characteristics
+### Characteristics
 
 - Java with core Android SDK
-- Local persistence using Room
-- Offline; no external services
+- Local persistence using Room / SQLite
+- Offline; no external services or telemetry
 - Gesture-based navigation with Floating Action Buttons (FABs)
 - Material Design layouts with minimal visual and cognitive overhead
 
-### Implemented functionality
+### Implemented Functionality
 
 - Household chore timers with completion tracking
 - Local persistence of timer and history data
 - ~~User-configured alerts and reminders~~
-- Export of completion history as table-formatted reports to Android system implicits.
+- Export of completion history as table-formatted reports via Android system intents
 
 This approach prioritizes data ownership, transparency, and user control without external dependencies.
 
@@ -72,7 +67,8 @@ This approach prioritizes data ownership, transparency, and user control without
 
 https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html
 
-> You must include a proper DynamoDB table URL in `.env*`. I.e. `VITE_API_BASE_URL=https://<your-private-string-here>.execute-api.us-east-2.amazonaws.com`
+> A valid DynamoDB table URL is required in `.env*`:
+> `VITE_API_BASE_URL=https://<your-private-string-here>.execute-api.us-east-2.amazonaws.com`
 
 ### React UI
 
@@ -82,7 +78,7 @@ Created using Vite with a React + TypeScript template.
 
 React UI deployed via AWS Amplify.
 
-> Of course self-hosted is an option. The only requirement in the Vite MVP is a valid DynamoDB table... see above.
+> Self-hosted deployments are also supported — the only requirement is a valid DynamoDB URL; see above.
 
 ## Network Diagram (Web MVP)
 
